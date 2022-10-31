@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "@types/body-parser": "^1.19.2",
+    "@types/mysql": "^2.15.20",
+    "@types/node": "^17.0.8",
+    "@types/ws": "^8.5.3",
+    "canvas": "^2.9.0",
+    "chalk": "^5.0.0",
+    "dotenv": "^14.1.0",
+    "fastify": "^3.25.3",
+    "fastify-static": "^4.5.0",
+    "mysql": "^2.18.1",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.5",
+    "ws": "^8.5.0"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "tsc && node dist/index.js"
+  },
+  "name": "api_",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "",
+  "author": "Febzey <braydent1235@gmail.com>",
+  "license": "MIT",
+  "proxy": "ws://localhost:2555"
+}
