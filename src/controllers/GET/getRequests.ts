@@ -192,7 +192,7 @@ export const tabListHandler = async (req: FastifyRequest, reply: FastifyReply) =
     });
     setTimeout(() => {
         return botWs.removeAllListeners('message');
-    }, 9000)
+    }, 10000)
 }
 
 
