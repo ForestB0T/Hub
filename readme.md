@@ -10,7 +10,7 @@ All bots essentially connect to this HUB and communicate to the database via res
 
 
 > ## Endpoints:
-> > ##### Public Routes:
+> > #### Public Routes:
 > > - /playtime/:user/:server
 > > - /joindate/:user/:server
 > > - /joins/:user/:server
@@ -21,7 +21,7 @@ All bots essentially connect to this HUB and communicate to the database via res
 > > - /tab/:server
 > > - /quote/:user/:server
 
-> > ##### Private Routes:
+> > #### Private Routes:
 > > - /savechat/:user/:server
 > > - /saveplaytime/:user/:server
 > > - /savepvekill/:user/:server
