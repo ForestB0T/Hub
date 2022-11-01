@@ -15,14 +15,11 @@ export default class Websocket {
 
     start() {
         console.log("Starting websocket.")
-        this.wss = new WebSocketServer({
-            port: this.port,
-            
-        });
+        this.wss = new WebSocketServer({ port: this.port });
         this.wss.on('connection', (ws, request) => {
             console.log("Connected websocket: " + request.url);
             this.collectedWebsockets.set(request.url, ws);
-
+            
             ws.on('close', () => {
                 console.log("Closed websocket: " + request.url);
                 this.collectedWebsockets.delete(request.url);

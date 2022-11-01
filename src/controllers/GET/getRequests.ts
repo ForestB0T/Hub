@@ -12,8 +12,6 @@ import { ws } from '../../index.js';
  */
 export const livechatChannelHandler = (req: FastifyRequest, reply: FastifyReply) => {
     const serv: string = req.params['server'];
-    const key: string = req.params['key'];
-
     if (!checkPrivateKey(req.params['key'], reply)) return;
 
     database.query(`SELECT channelID FROM livechats WHERE mc_server = ?`, [serv], (err, res) => {
@@ -164,7 +162,6 @@ export const messageCountHandler = (req: FastifyRequest, reply: FastifyReply) =>
     })
 }
 
-
 /**
  * 
  * Query a live tablist of a minecraft server
@@ -194,7 +191,6 @@ export const tabListHandler = async (req: FastifyRequest, reply: FastifyReply) =
         return botWs.removeAllListeners('message');
     }, 10000)
 }
-
 
 /**
  * 
