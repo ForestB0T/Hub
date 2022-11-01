@@ -104,13 +104,6 @@ const Routes: Array<RouteItem> = [
         handler: getHandlers.lastseenHandler
     },
     {
-        method: "GET", 
-        url: "/lastmessage/:user/:server",
-        json: true, 
-        handler: getHandlers.lastMessageHandler,
-        isPrivate: true
-    },
-    {
         method: 'GET',
         url: '/joindate/:user/:server',
         json: true,

@@ -17,6 +17,7 @@ export default class Websocket {
         console.log("Starting websocket.")
         this.wss = new WebSocketServer({
             port: this.port,
+            
         });
         this.wss.on('connection', (ws, request) => {
             console.log("Connected websocket: " + request.url);
