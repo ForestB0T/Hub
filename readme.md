@@ -5,7 +5,7 @@
 This api is used as a central hub for any application or human that needs to access information that ForestBot has saved.
 All bots essentially connect to this HUB and communicate to the database via restful api endpoints.
 
-> API URL: [https://api.forestbot.org](https://api.forestbot.org)
+> API URL: [https://api.forestbot.org](https://api.forestbot.org) <br>
 > Website URL: [https://forestbot.org](https://forestbot.org) 
 
 
