@@ -170,26 +170,20 @@ export const messageCountHandler = (req: FastifyRequest, reply: FastifyReply) =>
  */
 export const tabListHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     const server = req.params['server'];
-    const botWs = ws.collectedWebsockets.get(`/${server}`);
-    if(!botWs) return reply.code(501).send({ Error: "server not found." });
 
-    botWs.send(JSON.stringify({ type: "tablist" }));
-    botWs.on('message', async (data) => {
-        try {
-            const json = JSON.parse(data.toString());
-            const tablist = await generateTablist(json) as String;
-            const formattedString = tablist.replace(/^data:image\/png;base64,/, "");
-            const image = Buffer.from(formattedString, 'base64');
-    
-            return reply.code(200).header('Content-Type', 'image/png').send(image)
-        } catch(err) {
-            console.log(err)
-            return reply.code(200).header('Content-Type', 'application/json').send({ error: "error" });
-        }
-    });
-    setTimeout(() => {
-        return botWs.removeAllListeners('message');
-    }, 10000)
+    const playerList = ws.playerLists.get(server);
+    if (!playerList) return reply.code(501).send({ Error: "server not found." })
+
+    try {
+        const tablist = await generateTablist(playerList) as String;
+        const formattedString = tablist.replace(/^data:image\/png;base64,/, "")
+        const image = Buffer.from(formattedString, 'base64');
+        reply.code(200).header('Content-Type', 'image/png').send(image)
+        return
+    } catch (err) {
+        return console.error(err);
+    }
+
 }
 
 /**
