@@ -30,7 +30,7 @@ export default class Websocket {
                     this.updatePlayerList(mc_server, playerlist);
                 }
     
-            })
+            });
 
             ws.on('close', () => {
                 console.log("Closed websocket: " + request.url);
