@@ -21,4 +21,5 @@ export type allStats = {
     lastdeathString: string,
     lastdeathTime: number,
     id: number
+    mc_server: string
 }

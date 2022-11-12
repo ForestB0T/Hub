@@ -139,7 +139,8 @@ export const profileHandler = (req: FastifyRequest, reply: FastifyReply) => {
             leaves: i.joins,
             lastdeathString: i.lastdeathString,
             lastdeathTime: i.lastdeathTime,
-            id: i.id
+            id: i.id,
+            mc_server: serv
         })
         return;
     })
