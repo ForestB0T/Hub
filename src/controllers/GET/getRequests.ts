@@ -4,6 +4,23 @@ import { allStats } from '../../../types';
 import generateTablist from '../../util/generate/tablist/tablist.js';
 import checkPrivateKey from '../../util/security/keyAuth.js';
 import { ws } from '../../index.js';
+
+
+
+
+/**
+ * Get a list of all connected websockets.
+ */
+export const getconnectedWebsocketsList = async (request: FastifyRequest, reply: FastifyReply) => { 
+    let arr = [];
+    for (const [key, _] of ws.collectedWebsockets) {
+        arr.push(key);
+    }
+    reply.code(200).header('Content-Type', 'application/json').send({
+        arr
+    })
+}
+
 /**
  * 
  * Request livechat channels.

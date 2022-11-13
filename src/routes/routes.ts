@@ -31,6 +31,13 @@ import * as postHandlers from "../controllers/POST/postHandler.js";
 
 const Routes: Array<RouteItem> = [
     {
+        method: "GET", 
+        url: "/connected-websockets",
+        json: true,
+        handler: getHandlers.getconnectedWebsocketsList,
+        isPrivate: false
+    },
+    {
         method: "POST", 
         url: "/updateleave/:key",
         json: true, 
