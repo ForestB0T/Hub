@@ -8,10 +8,10 @@ import Websocket from '../Websocket/Websocket.js';
 
 export default class ForestApi {
     public server: FastifyInstance;
-    public ws: Websocket
-    public wsServer: WebSocketServer
+    public ws: Websocket;
+    public wsServer: WebSocketServer;
 
-    constructor(public port: number) {
+    constructor(private port: number) {
         this.server = fastify();
         this.server.setNotFoundHandler((request, reply) => reply.code(404).type('text/html').send('Route not found.'))
         this.startServer();
@@ -26,16 +26,13 @@ export default class ForestApi {
                 for (const file of await fs.readdir(routePath + '/' + dir)) {
                     if (file.endsWith('.js')) {
                         const routeItem: RouteItem = (await import(`../../controllers/${dir}/${file}`)).default;
-
                         this.server.route({
                             method: routeItem.method,
                             url: routeItem.url,
                             json: routeItem.json,
                             handler: (req, reply) => routeItem.handler(req, reply, database)
                         } as RouteOptions);
-
                         console.log(`Loaded route: ${routeItem.url}`)
-
                     }
                 }
             }
