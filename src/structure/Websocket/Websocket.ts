@@ -37,6 +37,7 @@ export default class Websocket {
                 this.collectedWebsockets.delete(request.url);
             });
         })
+        console.log("Websocket server has been started.")
     }
 
     updatePlayerList(server: string, players: [{ name: string, ping: number }]) {

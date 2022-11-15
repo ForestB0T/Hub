@@ -5,8 +5,8 @@ export type RouteItem = {
     url: string,
     json: boolean,
     schema?: {},
-    handler: (req: FastifyRequest, reply: FastifyReply) => void,
     isPrivate?: boolean
+    handler: (req: FastifyRequest, reply: FastifyReply, database:?) => void,
 };
 
 export type allStats = { 
