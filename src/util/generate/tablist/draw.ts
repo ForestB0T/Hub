@@ -31,7 +31,7 @@ const draw = (names: string[]) => {
             const AvatarImg = await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/16`)
             ctx.drawImage(AvatarImg, x + 5, z + 2, 16, 16);
     
-            const PingImg = await Canvas.loadImage(loadPing(ping))
+            const PingImg = await Canvas.loadImage(loadPing(ping)) 
             ctx.drawImage(PingImg, x + 259, z + 2, 16, 16);
     
             ctx.fillText(name, x + 23, z + 16);
@@ -55,8 +55,11 @@ const draw = (names: string[]) => {
             })
         }
     
-        await renderTab(names);    
-        return resolve(canvas.toDataURL("image/png"));
+        await renderTab(names);
+        
+        const tablist = canvas.toDataURL("image/png")
+
+        return resolve(tablist);
     })
 }
 

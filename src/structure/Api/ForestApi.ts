@@ -32,7 +32,7 @@ export default class ForestApi {
                             json: routeItem.json,
                             handler: (req, reply) => routeItem.handler(req, reply, database)
                         } as RouteOptions);
-                        console.log(`Loaded route: ${routeItem.url}`)
+                        console.log(`Loaded route: ${routeItem.method}: ${routeItem.url}`)
                     }
                 }
             }
