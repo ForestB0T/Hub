@@ -9,8 +9,6 @@ export default {
     isPrivate: false,
     handler: (req: FastifyRequest, reply: FastifyReply) => {
 
-        console.log(api.ws)
-
         let arr = [];
         for (const [key, _] of api.ws.collectedWebsockets) {
             arr.push(key);
