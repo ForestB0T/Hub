@@ -17,7 +17,7 @@ export default {
             time      = req.body["time"];
     
         database.query(
-            "UPDATE users SET playtime = playtime + ? WHERE username = ? and mc_server = ?",
+            "UPDATE users SET playtime = playtime + 60000 WHERE username=? AND mc_server=?",
             [time, user, mc_server],
             (err, res) => {
                 if (err) {
@@ -28,5 +28,7 @@ export default {
                 return;
             }
         )
+
+        return;
     }
 } as RouteItem;
