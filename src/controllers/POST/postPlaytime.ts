@@ -13,12 +13,11 @@ export default {
         if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const user    = req.body["user"],
-            mc_server = req.body["mc_server"],
-            time      = req.body["time"];
+            mc_server = req.body["mc_server"]
     
         database.query(
             "UPDATE users SET playtime = playtime + 60000 WHERE username=? AND mc_server=?",
-            [time, user, mc_server],
+            [user, mc_server],
             (err, res) => {
                 if (err) {
                     reply.code(501).send({ Error: "error with database." });
