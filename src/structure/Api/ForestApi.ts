@@ -1,22 +1,20 @@
-import type { WebSocketServer } from 'ws';
 import type { FastifyInstance } from 'fastify';;
 import { RouteItem } from '../../../types.js';
 import fastify, { RouteOptions } from 'fastify';
 import fs from "fs/promises";
-import database from '../database/createPool.js';
-import Websocket from '../Websocket/Websocket.js';
+import Database from '../database/createPool.js';
 
 export default class ForestApi {
     public server: FastifyInstance;
-    public ws: Websocket;
-    public wsServer: WebSocketServer;
+    public database: Database;
+    public playerLists: Map<string, [{ name: string, ping: number }]> = new Map();
+
 
     constructor(private port: number) {
         this.server = fastify();
         this.server.setNotFoundHandler((request, reply) => reply.code(404).type('text/html').send('Route not found.'))
         this.startServer();
-        this.ws = new Websocket(8080);
-        this.wsServer = this.ws.wss;
+        this.database = new Database();
     }
 
     async loadRoutes() {
@@ -30,7 +28,7 @@ export default class ForestApi {
                             method: routeItem.method,
                             url: routeItem.url,
                             json: routeItem.json,
-                            handler: (req, reply) => routeItem.handler(req, reply, database)
+                            handler: (req, reply) => routeItem.handler(req, reply, this.database)
                         } as RouteOptions);
                         console.log(`Loaded route: ${routeItem.method}: ${routeItem.url}`)
                     }

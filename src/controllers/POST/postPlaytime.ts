@@ -1,33 +1,34 @@
-import type { Pool } from "mysql";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../../types";
 import checkPrivateKey from "../../util/security/keyAuth.js";
+import type { database } from "../../structure/database/createPool.js";
+
 
 export default {
-    method: "POST", 
+    method: "POST",
     url: "/saveplaytime/:key",
     json: true,
     isPrivate: true,
-    handler: (req: FastifyRequest, reply: FastifyReply, database: Pool) => {
+    handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
         if (!checkPrivateKey(req.params['key'], reply)) return;
 
-        const user    = req.body["user"],
-            mc_server = req.body["mc_server"]
-    
-        database.query(
-            "UPDATE users SET playtime = playtime + 60000 WHERE username=? AND mc_server=?",
-            [user, mc_server],
-            (err, res) => {
-                if (err) {
-                    reply.code(501).send({ Error: "error with database." });
-                    return;
-                }
-                reply.code(200).send({ success: true });
-                return;
-            }
-        )
+        const mc_server = req.body["mc_server"]
+        const players = req.body["players"]
 
-        return;
+        try {
+            for (const player of players) {
+                await database.promisedQuery(
+                    "UPDATE users SET playtime = playtime + 60000 WHERE username=? AND mc_server=?",
+                    [player, mc_server]
+                )
+            }
+            await reply.code(200).send({ success: true });
+            return;
+        } catch (err) {
+            await reply.code(501).send({ Error: "error with database." });
+            return;
+        }
+
     }
 } as RouteItem;

@@ -1,19 +1,19 @@
-import type { Pool } from "mysql";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../../types";
 import checkPrivateKey from "../../util/security/keyAuth.js";
+import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET", 
     url: "/getchannels/:server/:key",
     json: true,
     isPrivate: true,
-    handler: (req: FastifyRequest, reply: FastifyReply, database: Pool) => {
+    handler: (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
         const serv: string = req.params['server'];
         if (!checkPrivateKey(req.params['key'], reply)) return;
     
-        database.query(`SELECT channelID FROM livechats WHERE mc_server = ?`, [serv], (err, res) => {
+        database.Pool.query(`SELECT channelID FROM livechats WHERE mc_server = ?`, [serv], (err, res) => {
             if (err) {
                 reply.code(501).send({ Error: "error with database." });
                 return;

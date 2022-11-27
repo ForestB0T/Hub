@@ -12,7 +12,7 @@ export default {
     handler: async (req: FastifyRequest, reply: FastifyReply) => {
         const server = req.params['server'];
 
-        const playerList = api.ws.playerLists.get(server);
+        const playerList = api.playerLists.get(server);
         if (!playerList) return reply.code(501).send({ Error: "server not found." })
     
         try {
