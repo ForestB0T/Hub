@@ -12,8 +12,8 @@ export default {
         const user: string = req.params['user'];
         database.Pool.query(`SELECT kills,deaths from users WHERE username = ? AND mc_server = ?`, [user, serv], (err, res) => {
             if (err || !res[0]) return reply.code(501).send({ Error: "user not found." })
-            const kills: number = res[0].kills || 0;
-            const deaths: number = res[0].deaths || 0;
+            const kills: number = res[0].kills ? res[0].kills : 0;
+            const deaths: number = res[0].deaths ? res[0].deaths : 0;            
             reply.code(200).header('Content-Type', 'application/json').send({
                 kills: kills,
                 deaths: deaths
