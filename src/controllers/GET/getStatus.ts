@@ -13,10 +13,15 @@ export default {
         const databaseIsConnected = await database.isConnected();
         const connectedServers = [...api.playerLists.keys()];
 
+        const getTotalMessageRows = await database.promisedQuery("EXPLAIN SELECT COUNT(*) FROM messages");
+        const getTotalUserRows = await database.promisedQuery("EXPLAIN SELECT COUNT(*) FROM users");
+
         const res = {
             databaseIsConnected: databaseIsConnected,
             connectedServers: connectedServers,
-            memory: `${Math.round(used * 100) / 100} MB`
+            memory: `${Math.round(used * 100) / 100} MB`,
+            messages: getTotalMessageRows[0].rows + 1_000_000,
+            users: getTotalUserRows[0].rows
         }
 
         reply.code(200).header('Content-Type', 'application/json').send({
