@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RouteItem } from "../../../types";
+import { RouteItem } from "../../..";
 import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool.js";
 

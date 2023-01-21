@@ -1,20 +1,41 @@
 import type { FastifyInstance } from 'fastify';;
-import { RouteItem } from '../../../types.js';
+import type { PlayerList, RouteItem } from '../../../index.js';
 import fastify, { RouteOptions } from 'fastify';
 import fs from "fs/promises";
 import Database from '../database/createPool.js';
+import cron from "node-cron"
 
 export default class ForestApi {
     public server: FastifyInstance;
     public database: Database;
-    public playerLists: Map<string, [{ name: string, ping: number }]> = new Map();
 
+    public connectedServers: Map<string, {playerlist: PlayerList[], timestamp: number}> = new Map();
 
     constructor(private port: number) {
         this.server = fastify();
         this.server.setNotFoundHandler((request, reply) => reply.code(404).type('text/html').send('Route not found.'))
         this.startServer();
         this.database = new Database();
+
+        cron.schedule('*/2 * * * *', () => {
+            this.checkConnectedServers();
+            console.log("Ran")
+        })
+    }
+
+    public async updatePlayerList(mc_server: string, users: PlayerList[]): Promise<void> {
+        this.connectedServers.set(mc_server, { playerlist: users, timestamp: Date.now() });
+    }
+
+    private checkConnectedServers() {
+        const now = Date.now();
+        for (const [server, data] of this.connectedServers) {
+            if (!server || !data) return;
+            if (now - data.timestamp > 2 * 60000) {
+                this.connectedServers.delete(server);
+                console.log("Deleted cuz 2 mins no ping")
+            }
+        }
     }
 
     async loadRoutes() {

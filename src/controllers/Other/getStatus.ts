@@ -11,7 +11,7 @@ export default {
 
         const used = process.memoryUsage().heapUsed / 1024 / 1024;
         const databaseIsConnected = await database.isConnected();
-        const connectedServers = [...api.playerLists.keys()];
+        const connectedServers = [...api.connectedServers.keys()];
 
         const getTotalMessageRows = await database.promisedQuery("EXPLAIN SELECT COUNT(*) FROM messages");
         const getTotalUserRows = await database.promisedQuery("EXPLAIN SELECT COUNT(*) FROM users");

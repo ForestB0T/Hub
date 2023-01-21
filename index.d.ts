@@ -23,3 +23,8 @@ export type allStats = {
     id: number
     mc_server: string
 }
+
+interface PlayerList {
+    name: string;
+    ping: number;
+}

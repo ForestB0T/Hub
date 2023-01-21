@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { allStats, RouteItem } from "../../../types";
+import { allStats, RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
 export default {

@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RouteItem } from "../../../types";
+import { RouteItem } from "../../..";
 import checkPrivateKey from "../../util/security/keyAuth.js";
 import api from "../../index.js";
 
@@ -20,7 +20,7 @@ export default {
         const mc_server = req.body["mc_server"];
         const users: Users = req.body["users"];
 
-        api.playerLists.set(mc_server, users);
+        await api.updatePlayerList(mc_server, users);
 
         await reply.code(200).send({ status: "success" })
         return 

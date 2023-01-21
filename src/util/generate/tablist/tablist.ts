@@ -1,6 +1,7 @@
+import type { PlayerList } from '../../../../index.js';
 import draw from './draw.js';
 
-const generateTablist = async (players: [{ name: string, ping: number}]) => {
+const generateTablist = async (players: PlayerList[]) => {
     let arr = [];
     for (const player of players) {
         let name = player.name;
