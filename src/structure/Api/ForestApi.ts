@@ -19,7 +19,6 @@ export default class ForestApi {
 
         cron.schedule('*/2 * * * *', () => {
             this.checkConnectedServers();
-            console.log("Ran")
         })
     }
 
