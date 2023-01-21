@@ -40,7 +40,4 @@ export default class Database implements database {
             });
         });
     }
-    
-
-
 }
