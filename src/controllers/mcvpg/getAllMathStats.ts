@@ -10,7 +10,6 @@ export default {
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
       const username: string = req.params["username"];
-        console.log(username)
       try {
         const stats = await database.promisedQuery(`SELECT solved_count, wrong_count FROM mcvpgmath WHERE username = ?`, [username]);
         console.log(stats)
