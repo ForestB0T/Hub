@@ -1,34 +1,31 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { allStats, RouteItem } from "../../..";
+import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET",
-    url: "/user/:user/:server",
+    url: "/user-stats/:username",
     json: true,
     isPrivate: false,
-    handler: (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        const serv: string = req.params['server'];
-        const user: string = req.params['user'];
-        database.Pool.query(`SELECT * from users WHERE username = ? AND mc_server = ?`, [user, serv], (err, res) => {
-            if (err || !res[0] || !res[0].username) return reply.code(501).send({ Error: "user not found." })
-            const i: allStats = res[0];
-            reply.code(200).header('Content-Type', 'application/json').send({
-                username: i.username,
-                kills: i.kills,
-                deaths: i.deaths,
-                joindate: i.joindate,
-                lastseen: i.lastseen,
-                uuid: i.uuid,
-                playtime: i.playtime,
-                joins: i.joins,
-                leaves: i.joins,
-                lastdeathString: i.lastdeathString,
-                lastdeathTime: i.lastdeathTime,
-                id: i.id,
-                mc_server: serv
-            })
-            return;
-        })
+    handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
+      try {
+        const username = req.params["username"];
+        const data = await database.promisedQuery(`
+          SELECT kills, deaths, joindate, lastseen, uuid, playtime, joins, leaves, lastdeathTime, lastdeathString, mc_server
+          FROM users
+          WHERE username = ?
+        `, [username]);
+        if (!data || data.length === 0) {
+          return reply.code(404).send({ error: "No data found." });
+        }
+        const replyData = {
+          userStats: data
+        };
+        reply.code(200).header('Content-Type', 'application/json').send(replyData);
+      } catch (err) {
+        console.error(err);
+        reply.status(500).send({ success: false, message: 'Internal Server Error' });
+      }
     }
-} as RouteItem;
+  } as RouteItem;
+  
