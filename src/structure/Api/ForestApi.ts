@@ -1,9 +1,11 @@
 import type { FastifyInstance } from 'fastify';;
 import type { PlayerList, RouteItem } from '../../../index.js';
-import fastify, { RouteOptions } from 'fastify';
+import cors from '@fastify/cors'
+import Fastify, { RouteOptions } from 'fastify';
 import fs from "fs/promises";
 import Database from '../database/createPool.js';
 import cron from "node-cron"
+
 
 export default class ForestApi {
     public server: FastifyInstance;
@@ -12,10 +14,12 @@ export default class ForestApi {
     public connectedServers: Map<string, {playerlist: PlayerList[], timestamp: number}> = new Map();
 
     constructor(private port: number) {
-        this.server = fastify();
-        this.server.setNotFoundHandler((request, reply) => reply.code(404).type('text/html').send('Route not found.'))
+        this.server = Fastify();
+        this.server.setNotFoundHandler(async (request, reply) => await reply.code(404).type('text/html').send('Route not found.'))
         this.startServer();
         this.database = new Database();
+
+
 
         cron.schedule('*/2 * * * *', () => {
             this.checkConnectedServers();
@@ -57,13 +61,15 @@ export default class ForestApi {
         }
     }
 
-    async startServer() {
+    async startServer(this: ForestApi) {
         try {
+            await this.server.register(cors, { })
             await this.loadRoutes();
             await this.server.listen(this.port)
             return console.log("Listening on port: " + this.port)
         }
         catch (err) {
+            console.log(err)
             this.server.log.error(err);
             return process.exit(1);
         }
