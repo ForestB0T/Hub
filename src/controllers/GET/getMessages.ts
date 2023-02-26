@@ -20,8 +20,8 @@ export default {
           FROM messages
           WHERE mc_server = ? AND name = ?
           ORDER BY date ${action}
-          LIMIT ?
-        `, [mc_server, username, limit]);
+          LIMIT ${limit}
+        `, [mc_server, username]);
 
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });

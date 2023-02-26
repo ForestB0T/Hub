@@ -20,8 +20,8 @@ export default {
           FROM advancements
           WHERE mc_server = ? AND username = ?
           ORDER BY time ${action}
-          LIMIT ?
-        `, [mc_server, username, limit]);
+          LIMIT ${limit}
+        `, [mc_server, username]);
 
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });
