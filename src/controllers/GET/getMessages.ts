@@ -19,9 +19,9 @@ export default {
           SELECT *
           FROM messages
           WHERE mc_server = ? AND name = ?
-          ORDER BY date ?
+          ORDER BY date ${action}
           LIMIT ?
-        `, [mc_server, username, action, limit]);
+        `, [mc_server, username, limit]);
 
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });
