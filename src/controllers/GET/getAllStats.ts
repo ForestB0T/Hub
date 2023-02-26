@@ -11,7 +11,7 @@ export default {
       try {
         const username = req.params["username"];
         const data = await database.promisedQuery(`
-          SELECT kills, deaths, joindate, lastseen, uuid, playtime, joins, leaves, lastdeathTime, lastdeathString, mc_server
+          SELECT username, kills, deaths, joindate, lastseen, uuid, playtime, joins, leaves, lastdeathTime, lastdeathString, mc_server
           FROM users
           WHERE username = ?
         `, [username]);
