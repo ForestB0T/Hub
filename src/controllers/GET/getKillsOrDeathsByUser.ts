@@ -25,10 +25,10 @@ export default {
         const data = await database.promisedQuery(`
           SELECT *
           FROM deaths
-          WHERE mc_server = ? AND victim = ? AND type = ${pvporpve}
+          WHERE mc_server = ? AND victim = ? AND type = ?
           ORDER BY time ${action}
           LIMIT ${limit}
-        `, [mc_server, username]);
+        `, [mc_server, username, pvporpve]);
 
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });
