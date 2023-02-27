@@ -25,7 +25,7 @@ export default {
         const data = await database.promisedQuery(`
           SELECT *
           FROM deaths
-          WHERE mc_server = ? AND username = ? AND type = ${pvporpve}
+          WHERE mc_server = ? AND victim = ? AND type = ${pvporpve}
           ORDER BY time ${action}
           LIMIT ${limit}
         `, [mc_server, username]);
