@@ -2,6 +2,10 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+/**
+ * This route will get all stats from each mc_server based on a username.
+ */
+
 export default {
     method: "GET",
     url: "/user-stats/:username",

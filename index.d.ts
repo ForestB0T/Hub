@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'; 
+import ForestApi from './src/structure/Api/ForestApi';
+import Database from './src/structure/database/createPool';
 
 export type RouteItem = {
     method: string,
@@ -6,7 +8,7 @@ export type RouteItem = {
     json: boolean,
     schema?: {},
     isPrivate?: boolean
-    handler: (req: FastifyRequest, reply: FastifyReply, database:?) => void,
+    handler: (req: FastifyRequest, reply: FastifyReply, database?:Database, this: ForestApi) => void,
 };
 
 export type allStats = { 
