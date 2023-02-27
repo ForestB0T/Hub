@@ -3,14 +3,13 @@ import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
 /**
- * With this endpoint you can get kills or deaths 
- * specified by username, mc_server, limit, type (first or last msgs) and type of deaths (pvp or pve)
- * example: https://api.forestbot.org/deathsorkills/notFebzey/simplyvanilla/pve/10/last
+ * with this endpoint you can get bulk kills by username and server, with a limit and ASC or DESC type (first/last)
+ * example: https://api.forestbot.org/kills/notFebzey/simplyvanilla/10/last
  * 
  */
 export default {
     method: "GET",
-    url: "/deaths/:username/:server/:limit/:type",
+    url: "/kills/:username/:server/:limit/:type",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
@@ -24,7 +23,7 @@ export default {
         const data = await database.promisedQuery(`
           SELECT *
           FROM deaths
-          WHERE mc_server = ? AND victim = ?
+          WHERE mc_server = ? AND murderer = ?
           ORDER BY time ${action}
           LIMIT ${limit}
         `, [mc_server, username]);
@@ -34,7 +33,7 @@ export default {
         }
 
         let replyData = {
-            deathmsgs: data
+            killmsgs: data
         }
 
 
