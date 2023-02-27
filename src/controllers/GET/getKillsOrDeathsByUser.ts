@@ -10,7 +10,7 @@ import type { database } from "../../structure/database/createPool";
  */
 export default {
     method: "GET",
-    url: "/deathsorkills/:username/:server/:pvporpve/:limit/:type",
+    url: "/deaths/:username/:server/:limit/:type",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
@@ -20,23 +20,22 @@ export default {
         const limit = req.params["limit"];
         const type = req.params["type"]
         const action = type === "last" ? "DESC" : "ASC"
-        const pvporpve = req.params["pvporpve"] === "pve" ? "pve" : "pvp";
 
         const data = await database.promisedQuery(`
           SELECT *
           FROM deaths
-          WHERE mc_server = ? AND victim = ? AND type = ?
+          WHERE mc_server = ? AND victim = ?
           ORDER BY time ${action}
           LIMIT ${limit}
-        `, [mc_server, username, pvporpve]);
+        `, [mc_server, username]);
 
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });
         }
 
-        let replyData = pvporpve === "pve" 
-        ? { pve: data }
-        : { pvp: data}
+        let replyData = {
+            deathmsgs: data
+        }
 
 
         reply.code(200).header('Content-Type', 'application/json').send(replyData);
