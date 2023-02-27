@@ -3,13 +3,14 @@ import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
 /**
- * This endpoint will allow for the most recent or first advancements a user has got
- * you can pick the server name, the limit of advancements and the type (last || first)
+ * With this endpoint you can get kills or deaths 
+ * specified by username, mc_server, limit, type (first or last msgs) and type of deaths (pvp or pve)
+ * example: https://api.forestbot.org/deathsorkills/notFebzey/simplyvanilla/pve/10/last
+ * 
  */
-
 export default {
     method: "GET",
-    url: "/advancements/:username/:server/:limit/:type",
+    url: "/deathsorkills/:username/:server/:pvporpve/:limit/:type",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
@@ -18,12 +19,13 @@ export default {
         const mc_server = req.params["server"];
         const limit = req.params["limit"];
         const type = req.params["type"]
-        const action = type === "last" ? "DESC" : "ASC" 
+        const action = type === "last" ? "DESC" : "ASC"
+        const pvporpve = req.params["pvporpve"] === "pve" ? "pve" : "pvp";
 
         const data = await database.promisedQuery(`
           SELECT *
-          FROM advancements
-          WHERE mc_server = ? AND username = ?
+          FROM deaths
+          WHERE mc_server = ? AND username = ? AND type = ${pvporpve}
           ORDER BY time ${action}
           LIMIT ${limit}
         `, [mc_server, username]);
@@ -32,9 +34,10 @@ export default {
           return reply.code(404).send({ error: "No data found." });
         }
 
-        const replyData = {
-          advancements: data
-        };
+        let replyData = pvporpve === "pve" 
+        ? { pve: data }
+        : { pvp: data}
+
 
         reply.code(200).header('Content-Type', 'application/json').send(replyData);
       } catch (err) {
