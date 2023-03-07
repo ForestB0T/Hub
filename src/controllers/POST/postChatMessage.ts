@@ -17,7 +17,6 @@ export default {
         connection.socket.on('message', async message => {
             try {
                 const data = JSON.parse(message.toString());
-                console.log(data);
                 if (data.close) return connection.socket.close();
                 if (!data.username || !data.message || !data.mc_server) return;
 
