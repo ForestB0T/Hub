@@ -9,7 +9,7 @@ export default {
     method: "POST", 
     url: "/mcvpg-save-math/:key",
     json: true,
-    isPrivate: true,
+    isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
         if (req.params['key'] !== process.env.mcvpgKey) return;
 

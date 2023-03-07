@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify'; 
+import type { SocketStream } from "@fastify/websocket";
 import ForestApi from './src/structure/Api/ForestApi';
 import Database from './src/structure/database/createPool';
 
@@ -7,8 +8,9 @@ export type RouteItem = {
     url: string,
     json: boolean,
     schema?: {},
-    isPrivate?: boolean
-    handler: (req: FastifyRequest, reply: FastifyReply, database?:Database, this: ForestApi) => void,
+    isPrivate?: boolean,
+    useWebsocket?: boolean,
+    handler: (req: FastifyRequest|SocketStream, reply: FastifyReply, database?:Database, this: ForestApi) => void,
 };
 
 export type allStats = { 

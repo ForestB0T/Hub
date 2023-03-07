@@ -1,32 +1,38 @@
-import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
-import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool";
+import type { SocketStream } from "@fastify/websocket";
 
 export default {
-    method: "POST",
-    url: "/savechat/:key",
+    method: "GET",
+    url: "/savechat",
     json: true,
     isPrivate: true,
-    handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
-        const msg = req.body["message"],
-            user = req.body["user"],
-            mc_server = req.body["mc_server"];
-
-        try {
-            await database.promisedQuery(
-                "INSERT INTO messages (name, message, date, mc_server) VALUES (?, ?, ?, ?)",
-                [user, msg, Date.now(), mc_server]
-            )
-
-            reply.code(200).send({ success: true });
-
-        } catch {
-            reply.code(501).send({ Error: "error with database." });
-            return;
+    useWebsocket: true,
+    handler: async (connection: SocketStream, rep, database: database) => {
+        if (rep.headers["x-api-key"] !== process.env.APIKEY) {
+            connection.socket.send(JSON.stringify({ success: false, reason: "Invalid key"}))
+            return connection.socket.close();
         }
+
+        connection.socket.on('message', async message => {
+            try {
+                const data = JSON.parse(message.toString());
+                console.log(data);
+                if (data.close) return connection.socket.close();
+                if (!data.username || !data.message || !data.mc_server) return;
+
+                await database.promisedQuery(
+                    "INSERT INTO messages (name, message, date, mc_server) VALUES (?, ?, ?, ?)",
+                    [data.username, data.message, Date.now(), data.mc_server]
+                )
+                connection.socket.send(JSON.stringify({ success: true }));
+                return;
+
+            } catch (error) {
+                console.error(error);
+                connection.socket.send(JSON.stringify({ success: false, error: error.message }));
+                return;
+            }
+        })
     }
 } as RouteItem;

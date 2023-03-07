@@ -1,4 +1,6 @@
-import type { FastifyInstance } from 'fastify';;
+import type { FastifyInstance } from 'fastify';
+import websocket from "@fastify/websocket";
+import type { SocketStream } from "@fastify/websocket";
 import type { PlayerList, RouteItem } from '../../../index.js';
 import cors from '@fastify/cors'
 import Fastify, { RouteOptions } from 'fastify';
@@ -10,8 +12,8 @@ import cron from "node-cron"
 export default class ForestApi {
     public server: FastifyInstance;
     public database: Database;
-
-    public connectedServers: Map<string, {playerlist: PlayerList[], timestamp: number}> = new Map();
+    public connectedClients: Map<string, SocketStream> = new Map();
+    public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
 
     constructor(private port: number) {
         this.server = Fastify();
@@ -52,7 +54,10 @@ export default class ForestApi {
                             method: routeItem.method,
                             url: routeItem.url,
                             json: routeItem.json,
-                            handler: (req, reply) => routeItem.handler(req, reply, this.database, this)
+                            websocket: routeItem.useWebsocket,
+                            handler: (req, reply) => {
+                                routeItem.handler(req, reply, this.database, this)
+                            }
                         } as RouteOptions);
                         console.log(`Loaded route: ${routeItem.method}: ${routeItem.url}`)
                     }
@@ -63,9 +68,10 @@ export default class ForestApi {
 
     async startServer(this: ForestApi) {
         try {
-            await this.server.register(cors, { })
+            await this.server.register(cors, {})
+            await this.server.register(websocket);
             await this.loadRoutes();
-            await this.server.listen(this.port)
+            await this.server.listen({ port: this.port })
             return console.log("Listening on port: " + this.port)
         }
         catch (err) {
