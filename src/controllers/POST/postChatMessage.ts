@@ -19,7 +19,6 @@ export default {
                 const data = JSON.parse(message.toString());
                 if (data.close) return connection.socket.close();
                 if (!data.username || !data.message || !data.mc_server) return;
-
                 await database.promisedQuery(
                     "INSERT INTO messages (name, message, date, mc_server) VALUES (?, ?, ?, ?)",
                     [data.username, data.message, Date.now(), data.mc_server]
