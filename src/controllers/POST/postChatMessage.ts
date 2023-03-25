@@ -2,6 +2,9 @@ import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 import type { SocketStream } from "@fastify/websocket";
 
+let cachedMessages = [];
+let lastInsertTime = Date.now();
+
 export default {
     method: "GET",
     url: "/savechat",
@@ -13,9 +16,6 @@ export default {
             connection.socket.send(JSON.stringify({ success: false, reason: "Invalid key" }))
             return connection.socket.close();
         }
-
-        let cachedMessages = [];
-        let lastInsertTime = Date.now();
 
         connection.socket.on('message', async message => {
             try {
