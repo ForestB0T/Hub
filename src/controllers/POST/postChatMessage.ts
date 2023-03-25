@@ -23,6 +23,10 @@ export default {
                 if (data.close) return connection.socket.close();
                 if (!data.username || !data.message || !data.mc_server) return;
 
+                if (data.message.length > 250) {
+                    data.message = data.message.substring(0, 249) + '...';
+                  }
+
                 cachedMessages.push([data.username, data.message, Date.now(), data.mc_server]);
 
                 const now = Date.now();
