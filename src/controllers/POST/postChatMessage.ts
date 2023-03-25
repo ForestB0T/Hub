@@ -10,19 +10,31 @@ export default {
     useWebsocket: true,
     handler: async (connection: SocketStream, rep, database: database) => {
         if (rep.headers["x-api-key"] !== process.env.APIKEY) {
-            connection.socket.send(JSON.stringify({ success: false, reason: "Invalid key"}))
+            connection.socket.send(JSON.stringify({ success: false, reason: "Invalid key" }))
             return connection.socket.close();
         }
+
+        let cachedMessages = [];
+        let lastInsertTime = Date.now();
 
         connection.socket.on('message', async message => {
             try {
                 const data = JSON.parse(message.toString());
                 if (data.close) return connection.socket.close();
                 if (!data.username || !data.message || !data.mc_server) return;
-                await database.promisedQuery(
-                    "INSERT INTO messages (name, message, date, mc_server) VALUES (?, ?, ?, ?)",
-                    [data.username, data.message, Date.now(), data.mc_server]
-                )
+
+                cachedMessages.push([data.username, data.message, Date.now(), data.mc_server]);
+
+                const now = Date.now();
+                if (cachedMessages.length >= 50 || now - lastInsertTime >= 30000) {
+                    await database.promisedQuery(
+                        "INSERT INTO messages (name, message, date, mc_server) VALUES ?",
+                        [cachedMessages]
+                    );
+                    cachedMessages = [];
+                    lastInsertTime = now;
+                }
+
                 connection.socket.send(JSON.stringify({ success: true }));
                 return;
 
@@ -31,6 +43,6 @@ export default {
                 connection.socket.send(JSON.stringify({ success: false, error: error.message }));
                 return;
             }
-        })
+        });
     }
 } as RouteItem;
