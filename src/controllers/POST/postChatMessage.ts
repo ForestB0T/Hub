@@ -30,7 +30,7 @@ export default {
                     await database.promisedQuery(
                         "INSERT INTO messages (name, message, date, mc_server) VALUES ?",
                         [cachedMessages]
-                    );
+                    ).catch(()=>{});
                     cachedMessages = [];
                     lastInsertTime = now;
                 }
