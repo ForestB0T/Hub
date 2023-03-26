@@ -28,7 +28,8 @@ export type allStats = {
     mc_server: string
 }
 
-interface PlayerList {
+type PlayerList = {
     name: string;
     ping: number;
+    headurl?: Canvas.Image
 }

@@ -1,8 +1,11 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RouteItem } from "../../..";
+import { RouteItem, PlayerList } from "../../..";
 import checkPrivateKey from "../../util/security/keyAuth.js";
 import api from "../../index.js";
+import Canvas from "canvas";
 
+
+const headLink = "https://mc-heads.net/avatar/${name}/16";
 
 export default {
     method: "POST", 
@@ -12,13 +15,14 @@ export default {
     handler: async (req: FastifyRequest, reply: FastifyReply) => {
         if (!checkPrivateKey(req.params['key'], reply)) return;
 
-        type Users = [{
-            name: string,
-            ping: number
-        }]
+        type PlayerList = {
+            name: string;
+            ping: number;
+            headurl?: Canvas.Image
+        }
 
         const mc_server = req.body["mc_server"];
-        const users: Users = req.body["users"];
+        const users: PlayerList[] = req.body["users"];
 
         await api.updatePlayerList(mc_server, users);
 

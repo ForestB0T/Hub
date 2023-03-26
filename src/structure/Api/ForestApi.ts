@@ -7,7 +7,18 @@ import Fastify, { RouteOptions } from 'fastify';
 import fs from "fs/promises";
 import Database from '../database/createPool.js';
 import cron from "node-cron"
+import Canvas from "canvas";
 
+async function fetchAvatar(name: string): Promise<Canvas.Image> {
+    try {
+        const img = await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/16`);
+        return img;
+    } catch (err) {
+        // Handle error loading image
+        console.error(`Error loading avatar for user ${name}: ${err}`);
+        throw err;
+    }
+}
 
 export default class ForestApi {
     public server: FastifyInstance;
@@ -29,8 +40,43 @@ export default class ForestApi {
     }
 
     public async updatePlayerList(mc_server: string, users: PlayerList[]): Promise<void> {
-        this.connectedServers.set(mc_server, { playerlist: users, timestamp: Date.now() });
+        const serverData = this.connectedServers.get(mc_server);
+        if (serverData) {
+            // Server is already connected, update the player list
+            serverData.playerlist = users;
+
+            // Add player avatars for players who don't already have one
+            for (const user of serverData.playerlist) {
+                if (!user.headurl) {
+                    try {
+                        user.headurl = await fetchAvatar(user.name);
+                    } catch (err) {
+                        // Handle error fetching avatar
+                        console.error(`Error fetching avatar for user ${user.name}: ${err}`);
+                    }
+                }
+            }
+
+            // Update the timestamp to mark the player list as updated
+            serverData.timestamp = Date.now();
+            this.connectedServers.set(mc_server, serverData);
+        } else {
+            // Server is not connected, create a new entry for it
+            const playerlist: PlayerList[] = [];
+            for (const user of users) {
+                let headurl;
+                try {
+                    headurl = await fetchAvatar(user.name);
+                } catch (err) {
+                    // Handle error fetching avatar
+                    console.error(`Error fetching avatar for user ${user.name}: ${err}`);
+                }
+                playerlist.push({ ...user, headurl: headurl });
+            }
+            this.connectedServers.set(mc_server, { playerlist: playerlist, timestamp: Date.now() });
+        }
     }
+
 
     private checkConnectedServers() {
         const now = Date.now();

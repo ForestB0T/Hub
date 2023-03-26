@@ -1,6 +1,7 @@
 import Canvas from 'canvas';
+import { PlayerList } from '../../../..';
 
-const draw = (names: string[]) => {
+const draw = (names: PlayerList[]) => {
     return new Promise(async resolve => {
         let width = Math.ceil(names.length / 16) * 278;
 
@@ -20,16 +21,15 @@ const draw = (names: string[]) => {
             return "./assets/signal_1.png";
         }
 
-        const drawBlock = async (x: number, z: number, name: string, ping: number) => {
+        const drawBlock = async (x: number, z: number, name: string, ping: number, avatar: Canvas.Image) => {
             ctx.fillStyle = "#D3D3D3";
             ctx.globalAlpha = 1;
             ctx.fillRect(x + 2, z, 276, 20);
             ctx.globalAlpha = 1;
             ctx.fillStyle = "black";
 
-
             try {
-                const AvatarImg = await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/16`)
+                let AvatarImg = avatar??await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/16`)
                 ctx.drawImage(AvatarImg, x + 5, z + 2, 16, 16);
             } catch (error) {
                 console.error(error)
@@ -41,18 +41,17 @@ const draw = (names: string[]) => {
             ctx.fillText(name, x + 23, z + 16);
         }
 
-        const renderTab = (a: any) => {
+        const renderTab = (names: PlayerList[]) => {
             return new Promise(async resolve => {
                 let z = 0;
                 let x = 0;
 
-                for (const element of a) {
+                for (const name of names) {
                     if (z > 330) {
                         x = x + 278;
                         z = 0;
                     }
-                    let split = element.split(":");
-                    await drawBlock(x, z, split[0], split[1]);
+                    await drawBlock(x, z, name.name, name.ping, name.headurl);
                     z = z + 22;
                 }
                 resolve(true)
