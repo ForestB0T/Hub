@@ -17,6 +17,7 @@ export default {
         const players = req.body["players"] as string[];
 
         try {
+            
             for (const player of players) {
                 await database.promisedQuery(
                     "UPDATE users SET playtime = playtime + 60000 WHERE username=? AND mc_server=?",
