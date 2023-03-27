@@ -14,7 +14,7 @@ export default {
         if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const mc_server = req.body["mc_server"]
-        const players = req.body["players"]
+        const players = req.body["players"] as string[];
 
         try {
             for (const player of players) {

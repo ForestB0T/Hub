@@ -18,11 +18,14 @@ export default {
         const { connectedServers } = api;
         let isUserOnline = false;
 
-        connectedServers.forEach((val,key) => {
+        connectedServers.forEach((val, key) => {
             const { playerlist } = val;
             const isPlayerFound = playerlist.some(player => player.name === user);
             if (isPlayerFound) {
                 isUserOnline = true;
+                reply.header('og:title', `${user} is online and playing on ${key}`);
+                reply.header('og:description', 'See their stats at https://forestbot.org');
+
                 reply.send({
                     mc_server: key,
                     isOnline: true
@@ -31,6 +34,9 @@ export default {
         });
 
         if (!isUserOnline) {
+            reply.header('og:title', `${user} is offline.`);
+            reply.header('og:description', 'See their stats at https://forestbot.org');
+
             reply.send({
                 isOnline: false
             });
