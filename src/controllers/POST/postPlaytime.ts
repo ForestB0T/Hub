@@ -17,13 +17,12 @@ export default {
         const players = req.body["players"] as string[];
 
         try {
-            
-            for (const player of players) {
-                await database.promisedQuery(
-                    "UPDATE users SET playtime = playtime + 60000 WHERE username=? AND mc_server=?",
-                    [player, mc_server]
-                )
-            }
+
+            await database.promisedQuery(
+                "UPDATE users SET playtime = playtime + 60000 WHERE username IN (?) AND mc_server = ?",
+                [players, mc_server]
+            )
+
             await reply.code(200).send({ success: true });
             return;
         } catch (err) {
