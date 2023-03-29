@@ -10,13 +10,13 @@ import cron from "node-cron"
 import Canvas from "canvas";
 
 async function fetchAvatar(name: string): Promise<Canvas.Image> {
+    let img: Canvas.Image;
     try {
-        const img = await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/16`);
+        img = await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/16`);
         return img;
     } catch (err) {
-        // Handle error loading image
-        console.error(`Error loading avatar for user ${name}: ${err}`);
-        throw err;
+        img = await Canvas.loadImage("https://mc-heads.net/avatar/steve/16")
+        return img;
     }
 }
 
@@ -31,8 +31,6 @@ export default class ForestApi {
         this.server.setNotFoundHandler(async (request, reply) => await reply.code(404).type('text/html').send('Route not found.'))
         this.startServer();
         this.database = new Database();
-
-
 
         cron.schedule('*/2 * * * *', () => {
             this.checkConnectedServers();
@@ -64,7 +62,7 @@ export default class ForestApi {
             // Server is not connected, create a new entry for it
             const playerlist: PlayerList[] = [];
             for (const user of users) {
-                let headurl;
+                let headurl: Canvas.Image;
                 try {
                     headurl = await fetchAvatar(user.name);
                 } catch (err) {
@@ -73,6 +71,7 @@ export default class ForestApi {
                 }
                 playerlist.push({ ...user, headurl: headurl });
             }
+            console.log(`${mc_server} connected to api.`)
             this.connectedServers.set(mc_server, { playerlist: playerlist, timestamp: Date.now() });
         }
     }
@@ -84,7 +83,7 @@ export default class ForestApi {
             if (!server || !data) return;
             if (now - data.timestamp > 2 * 60000) {
                 this.connectedServers.delete(server);
-                console.log("Deleted cuz 2 mins no ping")
+                console.log(`${server} removed from list because 2 minutes without a ping.`)
             }
         }
     }
