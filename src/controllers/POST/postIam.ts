@@ -15,10 +15,13 @@ export default {
               description = req.body["description"]
 
         console.log(user, description)
-    
+        const now = Date.now();
         try {
-            await database.promisedQuery("INSERT INTO whois (username, description, timestamp) VALUES (?,?,?) ON DUPLICATE KEY UPDATE description = VALUES(description), timestamp = ?", [user, description, Date.now(), Date.now()]);
-            reply.code(200).send({ success: true })
+            await database.promisedQuery(`
+            INSERT INTO whois (username, description, timestamp)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE description = VALUES(description), timestamp = ?
+          `, [user, description, now, now]);            reply.code(200).send({ success: true })
             return;
         } catch (err) {
             console.error(err)
