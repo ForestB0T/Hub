@@ -10,16 +10,17 @@ export default {
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
         const user: string = req.params["user"];
+        const mc_server: string = req.params["mc_server"]
 
         try {
             const res = await database.promisedQuery(
                 `
                   SELECT username FROM users
-                  WHERE username LIKE ?
+                  WHERE username LIKE ? AND mc_server = ?
                   ORDER BY ABS(CHAR_LENGTH(username) - CHAR_LENGTH(?)), lastseen DESC
                   LIMIT 6;
                 `,
-                [`%${user}%`, user]
+                [`%${user}%`, mc_server, user]
               );
 
             if (!res || !res.length) throw new Error("No results.")
