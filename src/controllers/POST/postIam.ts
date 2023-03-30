@@ -17,7 +17,7 @@ export default {
         console.log(user, description)
     
         try {
-            await database.promisedQuery("INSERT INTO whois (username, description, timestamp) VALUES (?,?,?)", [user, description, Date.now()]);
+            await database.promisedQuery("INSERT INTO whois (username, description, timestamp) VALUES (?,?,?) ON DUPLICATE KEY UPDATE description = VALUES(description), timestamp = ?", [user, description, Date.now(), Date.now()]);
             reply.code(200).send({ success: true })
             return;
         } catch (err) {
