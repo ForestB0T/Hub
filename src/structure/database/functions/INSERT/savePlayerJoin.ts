@@ -1,14 +1,11 @@
-import { MinecraftChatMessage, MinecraftPlayerJoinArgs } from "../../../../../index.js";
+import { MinecraftPlayerJoinArgs } from "../../../../../index.js";
 import ForestBotApi from "../../../../index.js";
 import { WebSocket_Client_Map } from "../../../../controllers/websocket/auth.js";
-// let cachedMessages = [];
-// let lastInsertTime = Date.now();
 
 export default async function InsertPlayerJoin(args: MinecraftPlayerJoinArgs) {
     const { user, uuid, mc_server, time } = args;
     try { 
         const dbResults = await ForestBotApi.database.promisedQuery("SELECT * FROM users WHERE uuid = ? AND mc_server = ?", [uuid, mc_server]);
-        console.log(dbResults);
         if (!dbResults || !dbResults.length) {
             await ForestBotApi.database.promisedQuery("INSERT INTO users(username, joindate, uuid, joins, mc_server) VALUES (?,?,?,?,?)", [user, time, uuid, 1, mc_server]);
             //first join send to correct websocket with mc server.
