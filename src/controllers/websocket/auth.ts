@@ -149,7 +149,6 @@ export default {
         })
 
         connection.socket.on('ping', (data) => {
-            console.log(`Received ping with data: ${data}`);
             connection.socket.pong(data);
         });
 
