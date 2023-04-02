@@ -8,6 +8,7 @@ import fs from "fs/promises";
 import Database from '../database/createPool.js';
 import cron from "node-cron"
 import Canvas from "canvas";
+import Logger from '../logger/Logger.js';
 
 async function fetchAvatar(name: string): Promise<Canvas.Image> {
     let img: Canvas.Image;
@@ -49,8 +50,7 @@ export default class ForestApi {
                     try {
                         user.headurl = await fetchAvatar(user.name);
                     } catch (err) {
-                        // Handle error fetching avatar
-                        console.error(`Error fetching avatar for user ${user.name}: ${err}`);
+                        continue
                     }
                 }
             }
@@ -66,12 +66,11 @@ export default class ForestApi {
                 try {
                     headurl = await fetchAvatar(user.name);
                 } catch (err) {
-                    // Handle error fetching avatar
-                    console.error(`Error fetching avatar for user ${user.name}: ${err}`);
+                    continue
                 }
                 playerlist.push({ ...user, headurl: headurl });
             }
-            console.log(`${mc_server} connected to api.`)
+            Logger.success(`Mineflayer bot: ${mc_server} connected.`, "ForestBotAPI")
             this.connectedServers.set(mc_server, { playerlist: playerlist, timestamp: Date.now() });
         }
     }
@@ -83,7 +82,7 @@ export default class ForestApi {
             if (!server || !data) return;
             if (now - data.timestamp > 2 * 60000) {
                 this.connectedServers.delete(server);
-                console.log(`${server} removed from list because 2 minutes without a ping.`)
+                Logger.warn(`Mineflayer bot: ${server} has not been heard from in 2 minutes.`, "ForestBotAPI")
             }
         }
     }
@@ -104,7 +103,7 @@ export default class ForestApi {
                                 routeItem.handler(req, reply, this.database, this)
                             }
                         } as RouteOptions);
-                        console.log(`Loaded route: ${routeItem.method}: ${routeItem.url}`)
+                        Logger.success(`${routeItem.method}: ${routeItem.url} loaded`, "APIROUTE")
                     }
                 }
             }
@@ -117,7 +116,8 @@ export default class ForestApi {
             await this.server.register(websocket);
             await this.loadRoutes();
             await this.server.listen({ port: this.port })
-            return console.log("Listening on port: " + this.port)
+            Logger.success(`API started. Listening on port: ${this.port}`, "ForestBotAPI")
+            return;
         }
         catch (err) {
             console.log(err)

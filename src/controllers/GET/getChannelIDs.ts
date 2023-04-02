@@ -1,29 +1,32 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RouteItem } from "../../..";
+import { DiscordForestBotLiveChat, RouteItem } from "../../..";
 import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET", 
-    url: "/getchannels/:server/:key",
+    url: "/getchannels/:key",
     json: true,
     isPrivate: true,
-    handler: (req: FastifyRequest, reply: FastifyReply, database: database) => {
-
-        const serv: string = req.params['server'];
+    handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
         if (!checkPrivateKey(req.params['key'], reply)) return;
-    
-        database.Pool.query(`SELECT channelID FROM livechats WHERE mc_server = ?`, [serv], (err, res) => {
-            if (err) {
-                reply.code(501).send({ Error: "error with database." });
-                return;
-            }
-            const channelIds = [];
-            for (const chan of res) {
-                channelIds.push(chan.channelID);
-            };
-            reply.code(200).header('Content-Type', 'application/json').send(channelIds)
+
+        try {
+            const res = await database.promisedQuery("SELECT * FROM livechats")
+            if (!res || !res.length) throw new Error("Failed to get livechats.");
+
+            const channels = res as DiscordForestBotLiveChat[];
+            if (!channels || channels.length <= 0) throw new Error();
+
+            reply.code(200).header("Content-Type", "application/json").send({
+                success: true,
+                data: channels
+            });
+
+        } catch (err) {
+            reply.code(201).send({ success: false, error: "error with database." });
             return;
-        })
+        }
+
     }
 } as RouteItem;
