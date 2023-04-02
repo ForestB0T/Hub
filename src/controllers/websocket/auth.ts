@@ -16,11 +16,11 @@ const messageHandlers: MessageHandler[] = [
         type: 'discord',
         handler: async (message: DiscordMessage, connection: SocketStream) => {
             switch (message.action) {
-                case "chat": 
+                case "chat":
 
                     const discordLiveChatArgs: FromDiscordLiveChatMessage = message.data;
 
-                    const mcConn = WebSocket_Client_Map.get("minecraft"+message.data.mc_server);
+                    const mcConn = WebSocket_Client_Map.get("minecraft" + message.data.mc_server);
                     if (!mcConn) return;
 
                     mcConn.socket.send(JSON.stringify({
@@ -36,14 +36,14 @@ const messageHandlers: MessageHandler[] = [
     {
         type: 'minecraft',
         handler: async (message: MinecraftMessage, connection) => {
-            const discConn = WebSocket_Client_Map.get("discord"+"main-bot");
+            const discConn = WebSocket_Client_Map.get("discord" + "main-bot");
 
             switch (message.action) {
-            
+
                 case "savechat":
                     const saveChatData = message.data as MinecraftChatMessage;
 
-                    await InsertChatMessage({ 
+                    await InsertChatMessage({
                         name: saveChatData.name,
                         mc_server: saveChatData.mc_server,
                         message: saveChatData.message,
@@ -60,7 +60,7 @@ const messageHandlers: MessageHandler[] = [
                     await InsertPlayerKill({
                         victim: saveDeathData.victim,
                         death_message: saveDeathData.death_message,
-                        murderer: saveDeathData.murderer??null,
+                        murderer: saveDeathData.murderer ?? null,
                         time: saveDeathData.time,
                         mc_server: saveDeathData.mc_server,
                         type: saveDeathData.type
@@ -70,7 +70,7 @@ const messageHandlers: MessageHandler[] = [
                     discConn.socket.send(JSON.stringify({ data: message.data, action: "sendchat", type: "death" }))
                     return;
 
-                case "savejoin": 
+                case "savejoin":
                     const saveJoinData = message.data as MinecraftPlayerJoinArgs;
 
                     await InsertPlayerJoin({
@@ -127,17 +127,17 @@ export default {
             return connection.socket.close();
         }
 
-        const clientType: string = rep.headers["client-type"] as "discord"|"minecraft";
+        const clientType: string = rep.headers["client-type"] as "discord" | "minecraft";
 
         let clientID: string = rep.headers["client-id"];
-        const indendifier = clientType+clientID
+        const indendifier = clientType + clientID
 
         Logger.success(`Client: ${indendifier} connected.`, "WEBSOCKET");
 
         WebSocket_Client_Map.set(indendifier, connection);
 
         connection.socket.on("message", async message => {
-            const payload = JSON.parse(message.toString());            
+            const payload = JSON.parse(message.toString());
             const handler = messageHandlers.find(handler => handler.type === clientType);
 
             if (!handler) {
@@ -147,6 +147,11 @@ export default {
 
             await handler.handler(payload, connection);
         })
+
+        connection.socket.on('ping', (data) => {
+            console.log(`Received ping with data: ${data}`);
+            connection.socket.pong(data);
+        });
 
         connection.socket.on("close", () => {
             Logger.warn(`Client: ${indendifier} has disconnected from the websocket.`, "WEBSOCKET")
