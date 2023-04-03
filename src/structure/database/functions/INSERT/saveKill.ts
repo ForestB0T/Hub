@@ -20,7 +20,7 @@ export default async function InsertPlayerKill(args: MinecraftPlayerDeath) {
             )
     
             await ForestBotApi.database.promisedQuery(
-                "INSERT into deaths (victim, death_message, murderer, time, type, mc_server, victimUUID, murdererUUUID) VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT into deaths (victim, death_message, murderer, time, type, mc_server, victimUUID, murdererUUID) VALUES (?,?,?,?,?,?,?,?)",
                 [victim, death_message, murderer, time, "pvp", mc_server, victimUUID, murdererUUID]
             )
         } else {
