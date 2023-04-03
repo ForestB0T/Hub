@@ -47,6 +47,7 @@ interface MinecraftChatAdvancement {
     advancement: string,
     time: number,
     mc_server: string
+    uuid?: string
 }
 
 interface MinecraftPlayerJoinArgs {
@@ -68,7 +69,9 @@ interface MinecraftPlayerDeath {
     murderer?: string,
     time: number,
     type: "pve"|"pvp",
-    mc_server: string
+    mc_server: string,
+    victimUUID: string,
+    murdererUUID: string
 }
 
 interface DiscordGuild {

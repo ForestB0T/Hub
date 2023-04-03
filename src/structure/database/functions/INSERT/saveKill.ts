@@ -5,8 +5,7 @@ import ForestBotApi from "../../../../index.js";
 // let lastInsertTime = Date.now();
 
 export default async function InsertPlayerKill(args: MinecraftPlayerDeath) {
-    const { victim, death_message, murderer, time, type, mc_server } = args;
-
+    const { victim, death_message, murderer, time, type, mc_server, murdererUUID = null, victimUUID = null } = args;
     try {
         //this was a pvp kill
         if (murderer) {
@@ -21,8 +20,8 @@ export default async function InsertPlayerKill(args: MinecraftPlayerDeath) {
             )
     
             await ForestBotApi.database.promisedQuery(
-                "INSERT into deaths (victim, death_message, murderer, time, type, mc_server) VALUES (?,?,?,?,?,?)",
-                [victim, death_message, murderer, time, "pvp", mc_server]
+                "INSERT into deaths (victim, death_message, murderer, time, type, mc_server, victimUUID, murdererUUUID) VALUES (?,?,?,?,?,?,?,?)",
+                [victim, death_message, murderer, time, "pvp", mc_server, victimUUID, murdererUUID]
             )
         } else {
             await ForestBotApi.database.promisedQuery(
@@ -31,8 +30,8 @@ export default async function InsertPlayerKill(args: MinecraftPlayerDeath) {
             )
 
             await ForestBotApi.database.promisedQuery(
-                "INSERT into deaths (victim, death_message, time, type, mc_server) VALUES (?, ?, ?, ?, ?)",
-                [victim, death_message, time, "pve", mc_server]
+                "INSERT into deaths (victim, death_message, time, type, mc_server, victimUUID) VALUES (?, ?, ?, ?, ?, ?)",
+                [victim, death_message, time, "pve", mc_server, victimUUID]
             )
         }
 

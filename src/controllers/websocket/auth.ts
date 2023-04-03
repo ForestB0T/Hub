@@ -3,7 +3,6 @@ import type { SocketStream } from "@fastify/websocket";
 import InsertChatMessage from "../../structure/database/functions/INSERT/chatmessages.js";
 import InsertChatAdvancement from "../../structure/database/functions/INSERT/advancement.js";
 import InsertPlayerKill from "../../structure/database/functions/INSERT/saveKill.js";
-
 import { DiscordMessage, FromDiscordLiveChatMessage, MessageHandler, MinecraftChatAdvancement, MinecraftChatMessage, MinecraftMessage, MinecraftPlayerDeath, MinecraftPlayerJoinArgs, MinecraftPlayerLeaveArgs, RemoveGuildArgs, RemoveLiveChatArgs, RouteItem } from "../../..";
 import InsertPlayerJoin from "../../structure/database/functions/INSERT/savePlayerJoin.js";
 import InsertPlayerLeave from "../../structure/database/functions/INSERT/savePlayerLeave.js";
@@ -63,7 +62,9 @@ const messageHandlers: MessageHandler[] = [
                         murderer: saveDeathData.murderer ?? null,
                         time: saveDeathData.time,
                         mc_server: saveDeathData.mc_server,
-                        type: saveDeathData.type
+                        type: saveDeathData.type,
+                        victimUUID: saveDeathData.victimUUID,
+                        murdererUUID: saveDeathData.murdererUUID
                     })
 
                     if (!discConn) return;
@@ -104,7 +105,8 @@ const messageHandlers: MessageHandler[] = [
                         username: saveadvancementData.username,
                         advancement: saveadvancementData.advancement,
                         mc_server: saveadvancementData.mc_server,
-                        time: saveadvancementData.time
+                        time: saveadvancementData.time,
+                        uuid: saveadvancementData.uuid
                     });
 
                     if (!discConn) return;
