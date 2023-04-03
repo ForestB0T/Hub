@@ -22,6 +22,10 @@ export default {
 
         console.log(req.body)
 
+        const regex = /[^a-zA-Z0-9\s]/g;
+        // Replace all unwanted characters with an empty string
+        const cleanedName = guildName.replace(regex, '');
+
         try {
             await database.promisedQuery(`
             INSERT INTO livechats (guildName, guildID, channelID, setupBy, date, mc_server)
@@ -31,7 +35,7 @@ export default {
             setupBy = VALUES(setupBy),
             date = VALUES(date),
             mc_server = VALUES(mc_server);
-        `, [guildName, guildID, channelID, setupBy, date, mc_server]);
+        `, [cleanedName, guildID, channelID, setupBy, date, mc_server]);
 
             reply.code(200).send({ success: true })
             return;

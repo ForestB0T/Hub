@@ -22,6 +22,11 @@ export default {
 
          console.log(req.body);
 
+         const regex = /[^a-zA-Z0-9\s]/g;
+         // Replace all unwanted characters with an empty string
+         const cleanedName = guild_name.replace(regex, '');
+ 
+
          try {
             const query = `
             INSERT INTO guilds (guild_id, channel_id, mc_server, setup_by, created_at, guild_name)
@@ -29,7 +34,7 @@ export default {
             ON DUPLICATE KEY UPDATE channel_id = ?, mc_server = ?, setup_by = ?, created_at = ?
         `;
             const params = [
-                guild_id, channel_id, mc_server, setup_by, created_at, guild_name, channel_id, mc_server, setup_by, Date.now()
+                guild_id, channel_id, mc_server, setup_by, created_at, cleanedName, channel_id, mc_server, setup_by, Date.now()
             ]
             
             await database.promisedQuery(query,params);
