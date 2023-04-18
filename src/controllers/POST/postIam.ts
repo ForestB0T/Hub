@@ -5,11 +5,10 @@ import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "POST", 
-    url: "/iam/:key",
+    url: "/iam",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const user      = req.body["user"], 
               description = req.body["description"]

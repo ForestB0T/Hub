@@ -1,17 +1,15 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
-import checkPrivateKey from "../../util/security/keyAuth.js";
-import api from "../../index.js";
+
 import type { database } from "../../structure/database/createPool";
 
 
 export default {
     method: "POST", 
-    url: "/saveadvancement/:key",
+    url: "/saveadvancement",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const user = req.body["user"];
         const advancement = req.body["advancement"]

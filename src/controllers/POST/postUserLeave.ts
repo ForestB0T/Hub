@@ -1,15 +1,17 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
-import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool";
 
+
+/**
+ * Deprecated
+ */
 export default {
     method: "POST", 
-    url: "/updateleave/:key",
+    url: "/updateleave",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const user      = req.body["user"], 
               mc_server = req.body["mc_server"], 

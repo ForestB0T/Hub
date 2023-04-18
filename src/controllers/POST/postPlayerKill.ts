@@ -1,17 +1,17 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
-import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool";
 
+
+/**
+ * Deprecated
+ */
 export default {
     method: "POST",
-    url: "/savepvpkill/:key",
+    url: "/savepvpkill",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
         const
             murderer = req.body["murderer"],
             victim = req.body['victim'],

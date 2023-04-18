@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RouteItem } from "../../..";
+import { RouteItem } from "../../../../..";
 
 export default {
     method: 'GET',

@@ -3,14 +3,16 @@ import { RouteItem } from "../../..";
 import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool";
 
+
+/**
+ * Deprecated
+ */
 export default {
     method: "POST",
-    url: "/savepvekill/:key",
+    url: "/savepvekill",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-
-        if (!checkPrivateKey(req.params['key'], reply)) return;
         
         const user = req.body['victim'],
             deathmsg = req.body["deathmsg"],

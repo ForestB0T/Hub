@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { RouteItem } from "../../..";
-import { database } from "../../structure/database/createPool";
+import { RouteItem } from "../../../..";
+import { database } from "../../../structure/database/createPool";
 
 export default {
     method: "GET",

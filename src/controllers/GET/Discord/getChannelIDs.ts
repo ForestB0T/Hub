@@ -1,16 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { DiscordForestBotLiveChat, RouteItem } from "../../..";
-import checkPrivateKey from "../../util/security/keyAuth.js";
-import type { database } from "../../structure/database/createPool";
+import { DiscordForestBotLiveChat, RouteItem } from "../../../..";
+import type { database } from "../../../structure/database/createPool";
 
 export default {
     method: "GET", 
-    url: "/getchannels/:key",
+    url: "/getchannels",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
         try {
             const res = await database.promisedQuery("SELECT * FROM livechats")
             if (!res || !res.length) throw new Error("Failed to get livechats.");

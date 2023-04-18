@@ -5,6 +5,10 @@ import type { SocketStream } from "@fastify/websocket";
 let cachedMessages = [];
 let lastInsertTime = Date.now();
 
+
+/**
+ * Deprecated
+ */
 export default {
     method: "GET",
     url: "/savechat",

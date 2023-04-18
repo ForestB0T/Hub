@@ -3,13 +3,16 @@ import { RouteItem } from "../../..";
 import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool";
 
+
+/**
+ * Deprecated
+ */
 export default {
     method: "POST", 
-    url: "/updatejoin/:key",
+    url: "/updatejoin",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const user      = req.body["user"],
               uuid      = req.body["uuid"],

@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import checkPrivateKey from "../../util/security/keyAuth.js";
-import type { database } from "../../structure/database/createPool";
-import { RemoveLiveChatArgs } from "../../../index.js";
+import checkPrivateKey from "../../../util/security/keyAuth.js";
+import type { database } from "../../../structure/database/createPool.js";
+import { RemoveLiveChatArgs } from "../../../../index.js";
 
 export default {
     method: "POST",

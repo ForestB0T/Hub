@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import api from "../../index.js";
-import type { database } from "../../structure/database/createPool";
+import api from "../../../../index.js";
+import type { database } from "../../../../structure/database/createPool.js";
 
 export default {
     method: "GET",

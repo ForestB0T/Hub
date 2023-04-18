@@ -1,16 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { DiscordGuild, RouteItem } from "../../..";
-import type { database } from "../../structure/database/createPool";
-import checkPrivateKey from "../../util/security/keyAuth.js";
+import { DiscordGuild, RouteItem } from "../../../..";
+import type { database } from "../../../structure/database/createPool";
 
 export default {
     method: "GET",
-    url: "/getguilds/:key",
+    url: "/getguilds",
     json: true,
-    isPrivate: false,
+    isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
         try {
             const res = await database.promisedQuery(
                 "SELECT * FROM guilds",

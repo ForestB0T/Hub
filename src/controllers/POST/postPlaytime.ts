@@ -1,18 +1,14 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
-import checkPrivateKey from "../../util/security/keyAuth.js";
 import type { database } from "../../structure/database/createPool.js";
 
 
 export default {
     method: "POST",
-    url: "/saveplaytime/:key",
+    url: "/saveplaytime",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
         const mc_server = req.body["mc_server"]
         const players = req.body["players"] as string[];
 
