@@ -5,12 +5,10 @@ import type { database } from "../../../structure/database/createPool";
 
 export default {
     method: "POST", 
-    url: "/addguild/:key",
+    url: "/addguild",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
         const {
             channel_id,
             created_at,

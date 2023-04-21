@@ -5,12 +5,10 @@ import { RemoveLiveChatArgs } from "../../../../index.js";
 
 export default {
     method: "POST",
-    url: "/removelivechat/:key",
+    url: "/removelivechat",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
-
         const { guild_id, channel_id } = req.body as RemoveLiveChatArgs
 
         try {

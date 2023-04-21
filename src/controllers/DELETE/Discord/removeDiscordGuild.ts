@@ -5,11 +5,10 @@ import { RemoveGuildArgs } from "../../../../index.js";
 
 export default {
     method: "POST",
-    url: "/removeguild/:key",
+    url: "/removeguild",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        if (!checkPrivateKey(req.params['key'], reply)) return;
 
         const { guild_id } = req.body as RemoveGuildArgs
 
