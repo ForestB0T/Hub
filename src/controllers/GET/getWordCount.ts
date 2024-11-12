@@ -4,14 +4,15 @@ import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET",
-    url: "/wordcount/:word/:user/:server",
+    url: "/wordcount",
     json: true,
     isPrivate: false,
     handler: (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
-        const word: string = req.params["word"];
-        const serv: string = req.params['server'];
-        const user: string = req.params['user'];
+
+        const word: string = req.query["word"];
+        const serv: string = req.query['server'];
+        const user: string = req.query['username'];
 
         database.Pool.query(`
         SELECT NAME, message, COUNT(*) as word_count
@@ -20,7 +21,10 @@ export default {
         GROUP BY name
 
         `, [serv, user, word], (err, res) => {
-            if (err || !res[0] || !res[0].word_count) return reply.code(501).send({ Error: "user not found." })
+            if (err || !res[0] || !res[0].word_count) {
+                console.error(err)
+                return reply.code(501).send({ Error: "user not found." })
+            }
             const data = {
                 word_count: res[0].word_count
             }

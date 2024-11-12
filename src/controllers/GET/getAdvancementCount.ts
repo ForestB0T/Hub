@@ -2,19 +2,33 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+/**
+ * Get total advancements count.
+ */
+
 export default {
     method: "GET",
-    url: "/lastdeaths",
+    url: "/advancements-count",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
       try {
-        const data = await database.promisedQuery(`SELECT username, lastdeathTime, lastdeathString, mc_server FROM users ORDER BY lastdeathTime DESC LIMIT 20`);
-        if (!data || data.length === 0) {
-          return reply.code(404).send({ error: "No data found." });
-        }
+        const { 
+          uuid,
+          server
+        } = req.query as any;
+
+        console.log(uuid, server)
+        const result = await database.promisedQuery(`
+            SELECT COUNT(*) as total
+            FROM advancements
+            WHERE mc_server = ? AND uuid = ?
+        `, [server, uuid]);
+
+        const count = result[0]?.total || 0;
+
         const replyData = {
-            users: data
+          total_advancements: count
         };
 
         reply.code(200).header('Content-Type', 'application/json').send(replyData);

@@ -22,6 +22,7 @@ export default {
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });
         }
+        
         const replyData = {
           userStats: data
         };

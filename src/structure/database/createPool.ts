@@ -15,9 +15,9 @@ export default class Database implements database {
     public Pool: Pool
 
     constructor() {
-        this.Pool = createPool(dbConfig);
-        this.Pool.getConnection(err => err ? console.error(err) : console.log(chalk.greenBright("Connected to database successfully.")));
 
+        this.Pool = createPool(dbConfig);
+        this.Pool.getConnection(err => err ? console.error(err, " error connecting to the database") : console.log(chalk.greenBright("Connected to database successfully.")));
         this.promisedQuery = util.promisify(this.Pool.query).bind(this.Pool);
 
     }

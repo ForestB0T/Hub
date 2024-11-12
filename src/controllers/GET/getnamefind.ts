@@ -4,13 +4,13 @@ import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET",
-    url: "/namefind/:user/:server",
+    url: "/namesearch",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
-        const user: string = req.params["user"];
-        const mc_server: string = req.params["server"]
+        const user: string = req.query["username"];
+        const mc_server: string = req.query["server"];
 
         try {
             const res = await database.promisedQuery(

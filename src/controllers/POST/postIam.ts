@@ -5,15 +5,19 @@ import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "POST", 
-    url: "/iam",
+    url: "/whois-description",
     json: true,
     isPrivate: true,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
-        const user      = req.body["user"], 
+        const user      = req.body["username"], 
               description = req.body["description"]
 
-        console.log(user, description)
+        if (description.includes("/")) {
+            reply.code(400).send({ Error: "Description cannot contain '/'" });
+            return;
+        }
+        
         const now = Date.now();
         try {
             await database.promisedQuery(`

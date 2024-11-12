@@ -4,12 +4,12 @@ import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET",
-    url: "/whois/:user",
+    url: "/whois",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
 
-        const user: string = req.params["user"];
+        const user: string = req.query["username"];
 
         try {
             const res = await database.promisedQuery(

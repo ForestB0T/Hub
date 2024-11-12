@@ -3,14 +3,16 @@ import ForestBotApi from "../../../../index.js";
 import { WebSocket_Client_Map } from "../../../../controllers/websocket/auth.js";
 
 export default async function InsertPlayerJoin(args: MinecraftPlayerJoinArgs) {
-    const { user, uuid, mc_server, time } = args;
+    const { username, uuid, server, timestamp } = args;
     try { 
-        const dbResults = await ForestBotApi.database.promisedQuery("SELECT * FROM users WHERE uuid = ? AND mc_server = ?", [uuid, mc_server]);
+
+        const dbResults = await ForestBotApi.database.promisedQuery("SELECT * FROM users WHERE uuid = ? AND mc_server = ?", [uuid, server]);
+        
         if (!dbResults || !dbResults.length) {
-            await ForestBotApi.database.promisedQuery("INSERT INTO users(username, joindate, uuid, joins, mc_server) VALUES (?,?,?,?,?)", [user, time, uuid, 1, mc_server]);
+            await ForestBotApi.database.promisedQuery("INSERT INTO users(username, joindate, uuid, joins, mc_server) VALUES (?,?,?,?,?)", [username, timestamp, uuid, 1, server]);
             //first join send to correct websocket with mc server.
-            const conn = WebSocket_Client_Map.get("minecraft"+mc_server);
-            conn.socket.send(JSON.stringify({ data: { new_user: true, username: user } }));
+            const conn = WebSocket_Client_Map.get("minecraft"+server);
+            conn.send(JSON.stringify({ action: "new_user", data: { user: username, server: server } }));
             return;
         }
 
@@ -18,22 +20,23 @@ export default async function InsertPlayerJoin(args: MinecraftPlayerJoinArgs) {
         const existingUserName = dbResults[0].username;
 
         //user changed their name.
-        if (uuid === existingUserUUID && existingUserName !== user) {
-            await ForestBotApi.database.promisedQuery("UPDATE users SET username = ? WHERE username = ? AND uuid = ? AND mc_server = ?", [user, dbResults[0].username, uuid, mc_server]);
+        if (uuid === existingUserUUID && existingUserName !== username) {
+            await ForestBotApi.database.promisedQuery("UPDATE users SET username = ? WHERE username = ? AND uuid = ? AND mc_server = ?", [username, dbResults[0].username, uuid, server]);
             //user changed their name send to correct web socket.
-            const conn = WebSocket_Client_Map.get("minecraft"+mc_server);
-            conn.socket.send(JSON.stringify({ data: { name_changed: true, new_name: user, old_name: existingUserName }}));
+            const conn = WebSocket_Client_Map.get("minecraft"+server);
+            conn.send(JSON.stringify({ action: "new_name", data: { new_name: username, old_name: existingUserName, server: server } }));
         }
 
         await ForestBotApi.database.promisedQuery(
             "UPDATE users SET joins = joins + 1, lastseen = ? WHERE uuid = ? AND mc_server = ?",
-            [time, uuid, mc_server]
+            [timestamp, uuid, server]
         );
 
         return;
 
     } catch (err) {
         console.error(err, " Player join error");
+        
     }
 
 };

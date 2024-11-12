@@ -6,7 +6,6 @@
       "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
-      "watch": false,
       "removeComments": true,
       "skipLibCheck": true,
 

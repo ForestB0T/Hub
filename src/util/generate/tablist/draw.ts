@@ -51,7 +51,7 @@ const draw = (names: PlayerList[]) => {
                         x = x + 278;
                         z = 0;
                     }
-                    await drawBlock(x, z, name.name, name.ping, name.headurl);
+                    await drawBlock(x, z, name.username, name.latency, name.headurl);
                     z = z + 22;
                 }
                 resolve(true)

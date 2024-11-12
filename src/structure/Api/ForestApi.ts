@@ -1,14 +1,15 @@
-import type { PlayerList, RouteItem }             from '../../../index.js';
+import type { PlayerList, RouteItem } from '../../../index.js';
 import Fastify, { FastifyInstance, RouteOptions } from 'fastify';
-import websocket, { SocketStream }                from "@fastify/websocket";
-import cors        from '@fastify/cors';
-import fs          from "fs/promises";
-import Database    from '../database/createPool.js';
-import cron        from "node-cron";
-import Canvas      from "canvas";
-import Logger      from '../logger/Logger.js';
+import websocket, { WebSocket } from "@fastify/websocket";
+import cors from '@fastify/cors';
+import fs from "fs/promises";
+import Database from '../database/createPool.js';
+import cron from "node-cron";
+import Canvas from "canvas";
+import Logger from '../logger/Logger.js';
 import fetchAvatar from '../../util/fetchAvatar.js';
-import path        from 'path';
+import path from 'path';
+import InsertPlayerPlaytime from '../database/functions/INSERT/savePlayerPlaytime.js';
 
 
 /**
@@ -17,21 +18,44 @@ import path        from 'path';
  * 
  */
 export default class ForestApi {
-    
-    public server:   FastifyInstance;
+
+    public server: FastifyInstance;
     public database: Database;
-    public connectedClients: Map<string, SocketStream> = new Map();
+    public connectedClients: Map<string, WebSocket> = new Map();
     public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
 
     constructor(private port: number) {
         this.server = Fastify();
         this.server.setNotFoundHandler(async (request, reply) => await reply.code(404).type('text/html').send('Route not found.'))
-        this.startServer();
         this.database = new Database();
 
         cron.schedule('*/2 * * * *', () => {
             this.checkConnectedServers();
         })
+
+        this.startServer();
+
+    }
+
+    /**
+     * Starting the ForestBot API.
+     * @param this 
+     */
+    async startServer(this: ForestApi) {
+        try {
+            await this.server.register(cors, {})
+            await this.server.register(websocket);
+            await this.loadRoutesRecursive("./dist/controllers");
+
+            await this.server.listen({ port: this.port })
+            Logger.success(`API started. Listening on port: ${this.port}`, "ForestBotAPI")
+            return;
+        }
+        catch (err) {
+            console.error(err)
+            this.server.log.error(err, " Caught an error while trying to start the server");
+            return process.exit(1);
+        }
     }
 
     /**
@@ -42,6 +66,9 @@ export default class ForestApi {
      * @param users 
      */
     public async updatePlayerList(mc_server: string, users: PlayerList[]): Promise<void> {
+
+        await InsertPlayerPlaytime(users)
+
         const serverData = this.connectedServers.get(mc_server);
         if (serverData) {
             // Server is already connected, update the player list
@@ -51,7 +78,7 @@ export default class ForestApi {
             for (const user of serverData.playerlist) {
                 if (!user.headurl) {
                     try {
-                        user.headurl = await fetchAvatar(user.name);
+                        user.headurl = await fetchAvatar(user.username);
                     } catch (err) {
                         continue
                     }
@@ -67,7 +94,7 @@ export default class ForestApi {
             for (const user of users) {
                 let headurl: Canvas.Image;
                 try {
-                    headurl = await fetchAvatar(user.name);
+                    headurl = await fetchAvatar(user.username);
                 } catch (err) {
                     continue
                 }
@@ -106,17 +133,18 @@ export default class ForestApi {
                 const filePath = path.join(routePath, file);
                 const stat = await fs.stat(filePath);
                 if (stat.isDirectory()) {
-    
+
                     await this.loadRoutesRecursive(filePath);
-    
+
                 } else if (file.endsWith(".js")) {
-                    const routeItem: RouteItem = (await import(`../../../${filePath.replace(/\\/g, '/')}`)).default;    
+                    const routeItem: RouteItem = (await import(`../../../${filePath.replace(/\\/g, '/')}`)).default;
                     this.server.route({
                         method: routeItem.method,
                         url: routeItem.url,
                         json: routeItem.json,
                         websocket: routeItem.useWebsocket,
                         handler: (req, reply) => {
+
                             if (routeItem.useWebsocket) {
                                 routeItem.handler(req, reply, this.database, this)
                                 return;
@@ -131,31 +159,13 @@ export default class ForestApi {
                     } as RouteOptions);
                     Logger.success(`${routeItem.method}: ${routeItem.url} loaded`, "APIROUTE")
                 };
-    
+
             }
         } catch (err) {
-            console.error(err)
+            console.error(err, " Error while trying to load routes.")
         }
 
     }
 
-    /**
-     * Starting the ForestBot API.
-     * @param this 
-     */
-    async startServer(this: ForestApi) {
-        try {
-            await this.server.register(cors, {})
-            await this.server.register(websocket);
-            await this.loadRoutesRecursive("./dist/controllers");
 
-            await this.server.listen({ port: this.port })
-            Logger.success(`API started. Listening on port: ${this.port}`, "ForestBotAPI")
-            return;
-        }
-        catch (err) {
-            this.server.log.error(err);
-            return process.exit(1);
-        }
-    }
 }

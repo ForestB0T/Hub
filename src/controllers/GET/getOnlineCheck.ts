@@ -10,22 +10,24 @@ import ForestApi from "../../structure/Api/ForestApi";
 
 export default {
     method: "GET",
-    url: "/isonline/:user",
+    url: "/online",
     json: true,
     isPrivate: false,
     handler: (req: FastifyRequest, reply: FastifyReply, database: database, api: ForestApi) => {
-        const user: string = req.params['user'];
+
+        const user: string = req.query['username'];
+
         const { connectedServers } = api;
         let isUserOnline = false;
 
         connectedServers.forEach((val, key) => {
             const { playerlist } = val;
-            const isPlayerFound = playerlist.some(player => player.name === user);
+            const isPlayerFound = playerlist.some(player => player.username === user);
             if (isPlayerFound) {
                 isUserOnline = true;
                 reply.send({
-                    mc_server: key,
-                    isOnline: true
+                    online: true,
+                    server: key
                 });
             }
         });

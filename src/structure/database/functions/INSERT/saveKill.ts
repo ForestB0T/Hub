@@ -4,8 +4,9 @@ import ForestBotApi from "../../../../index.js";
 // let cachedMessages = [];
 // let lastInsertTime = Date.now();
 
-export default async function InsertPlayerKill(args: MinecraftPlayerDeath) {
+export default async function InsertMinecraftDeath(args: MinecraftPlayerDeath) {
     const { victim, death_message, murderer, time, type, mc_server, murdererUUID = null, victimUUID = null } = args;
+
     try {
         //this was a pvp kill
         if (murderer) {

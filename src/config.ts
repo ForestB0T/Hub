@@ -6,6 +6,7 @@ const dbConfig = {
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASS,
     database: process.env.DATABASE_NAME,
+    port: 3306,
     multipleStatements: true
 } as PoolConfig;
 

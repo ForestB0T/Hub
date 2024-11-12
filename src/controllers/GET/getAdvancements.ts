@@ -9,24 +9,25 @@ import type { database } from "../../structure/database/createPool";
 
 export default {
     method: "GET",
-    url: "/advancements/:username/:server/:limit/:type",
+    url: "/advancements",
     json: true,
     isPrivate: false,
     handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
       try {
-        const username = req.params["username"];
-        const mc_server = req.params["server"];
-        const limit = req.params["limit"];
-        const type = req.params["type"]
-        const action = type === "last" ? "DESC" : "ASC" 
+        const { 
+          uuid,
+          server, 
+          limit,
+          order
+        } = req.query as any;
 
         const data = await database.promisedQuery(`
           SELECT *
           FROM advancements
-          WHERE mc_server = ? AND username = ?
-          ORDER BY time ${action}
+          WHERE mc_server = ? AND uuid = ?
+          ORDER BY time ${order}
           LIMIT ${limit}
-        `, [mc_server, username]);
+        `, [server, uuid]);
 
         if (!data || data.length === 0) {
           return reply.code(404).send({ error: "No data found." });

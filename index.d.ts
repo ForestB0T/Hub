@@ -30,38 +30,45 @@ export type allStats = {
 }
 
 type PlayerList = {
-    name: string;
-    ping: number;
+    username: string
+    uuid: string
+    latency: number
+    server: string
     headurl?: Image
 }
 
 interface MinecraftChatMessage {
-    name: string,
-    message: string,
-    mc_server: string,
-    date?: string
-}
-
-interface MinecraftChatAdvancement {
-    username: string,
-    advancement: string,
-    time: number,
+    name: string
+    message: string
+    date: string
     mc_server: string
     uuid?: string
 }
 
-interface MinecraftPlayerJoinArgs {
-    user: string,
-    uuid: string,
+interface MinecraftAdvancementMessage {
+    username: string
+    advancement: string
+    time: number,
     mc_server: string,
-    time: string
+    id?: number | null
+    uuid: string
 }
 
-interface MinecraftPlayerLeaveArgs {
+
+interface MinecraftPlayerJoinArgs {
     username: string,
-    mc_server: string,
-    time: string
+    uuid: string,
+    server: string,
+    timestamp: string
 }
+
+interface MinecraftPlayerLeaveMessage {
+    username: string
+    uuid: string
+    timestamp: string
+    server: string
+}
+
 
 interface MinecraftPlayerDeath {
     victim?: string,
@@ -112,15 +119,15 @@ type RemoveGuildArgs = { guild_id: string };
 
 interface DiscordMessage {
     type: "discord";
-    action: "chat"
+    action: "inbound_discord_chat"
     data: FromDiscordLiveChatMessage;
     guildId: string;
 }
 
 interface MinecraftMessage {
     type: "minecraft";
-    action: "savechat"|"savejoin"|"savedeath"|"saveadvancement"|"saveleave"
-    data: MinecraftPlayerLeaveArgs|MinecraftPlayerJoinArgs|MinecraftChatMessage|MinecraftChatAdvancement|MinecraftPlayerDeath
+    action: "inbound_minecraft_chat"|"minecraft_player_join"|"minecraft_player_death"|"minecraft_advancement"|"minecraft_player_leave"|"send_update_player_list"
+    data: PlayerList[]|MinecraftPlayerLeaveMessage|MinecraftPlayerJoinArgs|MinecraftChatMessage|MinecraftChatAdvancement|MinecraftPlayerDeath
     mcServer: string;
 }
 

@@ -1,30 +1,57 @@
 import type { database } from "../../structure/database/createPool";
-import type { SocketStream } from "@fastify/websocket";
+import type { WebSocket } from "@fastify/websocket";
 import InsertChatMessage from "../../structure/database/functions/INSERT/chatmessages.js";
 import InsertChatAdvancement from "../../structure/database/functions/INSERT/advancement.js";
-import InsertPlayerKill from "../../structure/database/functions/INSERT/saveKill.js";
-import { DiscordMessage, FromDiscordLiveChatMessage, MessageHandler, MinecraftChatAdvancement, MinecraftChatMessage, MinecraftMessage, MinecraftPlayerDeath, MinecraftPlayerJoinArgs, MinecraftPlayerLeaveArgs, RemoveGuildArgs, RemoveLiveChatArgs, RouteItem } from "../../..";
+import InsertMinecraftDeath from "../../structure/database/functions/INSERT/saveKill.js";
+import { DiscordMessage, FromDiscordLiveChatMessage, MessageHandler, MinecraftAdvancementMessage, MinecraftMessage, MinecraftPlayerDeath, MinecraftPlayerJoinArgs, MinecraftPlayerLeaveMessage, PlayerList, RemoveGuildArgs, RemoveLiveChatArgs, RouteItem } from "../../..";
 import InsertPlayerJoin from "../../structure/database/functions/INSERT/savePlayerJoin.js";
 import InsertPlayerLeave from "../../structure/database/functions/INSERT/savePlayerLeave.js";
 import Logger from "../../structure/logger/Logger.js";
+import api from "../../index.js";
 
-export const WebSocket_Client_Map: Map<string, SocketStream> = new Map();
+import { inboundmessageDataTypes, messageActionTypes, MinecraftChatMessage} from "forestbot-api-wrapper-v2";
 
+export const WebSocket_Client_Map: Map<string, WebSocket> = new Map();
+
+
+function broadcastToAllClients(data: inboundmessageDataTypes, action: messageActionTypes, clientmap: Map<string, WebSocket> = WebSocket_Client_Map) {
+    clientmap.forEach((client) => {
+        if (client.readyState === 1) {
+            client.send(JSON.stringify({
+                action: action,
+                data: data,
+            }));
+        }
+    })
+}
+
+
+/**
+ * Message handlers for the websocket.
+ */
 const messageHandlers: MessageHandler[] = [
+
+    /**
+     * Handling Discord websocket events
+     */
     {
         type: 'discord',
-        handler: async (message: DiscordMessage, connection: SocketStream) => {
+        handler: async (message: DiscordMessage, connection: WebSocket) => {
             switch (message.action) {
-                case "chat":
+                case "inbound_discord_chat":
 
                     const discordLiveChatArgs: FromDiscordLiveChatMessage = message.data;
-
+                
                     const mcConn = WebSocket_Client_Map.get("minecraft" + message.data.mc_server);
                     if (!mcConn) return;
 
-                    mcConn.socket.send(JSON.stringify({
-                        action: "chat",
-                        data: { username: discordLiveChatArgs.username, message: discordLiveChatArgs.message },
+                    mcConn.send(JSON.stringify({
+                        action: "inbound_discord_chat",
+                        data: { 
+                            username: discordLiveChatArgs.username, 
+                            message: discordLiveChatArgs.message,
+                            mc_server: discordLiveChatArgs.mc_server, 
+                        },
                     }))
 
                     break;
@@ -32,31 +59,39 @@ const messageHandlers: MessageHandler[] = [
 
         }
     },
+
+    /**
+     * Handling minecraft websocket events.
+     */
     {
         type: 'minecraft',
         handler: async (message: MinecraftMessage, connection) => {
-            const discConn = WebSocket_Client_Map.get("discord" + "main-bot");
-
             switch (message.action) {
 
-                case "savechat":
+                /**
+                 * Saving minecraft chat messages.
+                 */
+                case "inbound_minecraft_chat":
                     const saveChatData = message.data as MinecraftChatMessage;
 
                     await InsertChatMessage({
                         name: saveChatData.name,
                         mc_server: saveChatData.mc_server,
                         message: saveChatData.message,
-                        date: `${Date.now()}`
+                        date: `${Date.now()}`,
+                        uuid: saveChatData.uuid
                     });
 
-                    if (!discConn) return;
-                    discConn.socket.send(JSON.stringify({ data: message.data, action: "sendchat", type: "chat" }))
+                    broadcastToAllClients(message.data as MinecraftChatMessage, "inbound_minecraft_chat", WebSocket_Client_Map)
                     return;
 
-                case "savedeath":
+                /**
+                 * Saving minecraft death and kill?
+                 */
+                case "minecraft_player_death":
                     const saveDeathData = message.data as MinecraftPlayerDeath;
 
-                    await InsertPlayerKill({
+                    await InsertMinecraftDeath({
                         victim: saveDeathData.victim,
                         death_message: saveDeathData.death_message,
                         murderer: saveDeathData.murderer ?? null,
@@ -67,39 +102,48 @@ const messageHandlers: MessageHandler[] = [
                         murdererUUID: saveDeathData.murdererUUID
                     })
 
-                    if (!discConn) return;
-                    discConn.socket.send(JSON.stringify({ data: message.data, action: "sendchat", type: "death" }))
-                    return;
+                    broadcastToAllClients(saveDeathData, "minecraft_player_death", WebSocket_Client_Map)
+                   return;
 
-                case "savejoin":
+                /**
+                 * Saving minecraft player join
+                 */
+                case "minecraft_player_join":
                     const saveJoinData = message.data as MinecraftPlayerJoinArgs;
-
-                    await InsertPlayerJoin({
-                        user: saveJoinData.user,
-                        uuid: saveJoinData.uuid,
-                        mc_server: saveJoinData.mc_server,
-                        time: saveJoinData.time
-                    })
-
-                    if (!discConn) return;
-                    discConn.socket.send(JSON.stringify({ data: message.data, action: "sendchat", type: "join" }))
+                    try {
+                        await InsertPlayerJoin({
+                            username: saveJoinData.username,
+                            uuid: saveJoinData.uuid,
+                            server: saveJoinData.server,
+                            timestamp: saveJoinData.timestamp
+                        })
+                    } catch (err) {
+                        console.error(err, " Error in player join")
+                    }
+                    broadcastToAllClients(message.data as MinecraftPlayerJoinArgs, "minecraft_player_join", WebSocket_Client_Map)
                     return;
 
-                case "saveleave":
-                    const saveLeaveData = message.data as MinecraftPlayerLeaveArgs;
+                /**
+                 * Saving minecraft player leave
+                 */
+                case "minecraft_player_leave":
+                    const saveLeaveData = message.data as MinecraftPlayerLeaveMessage;
 
                     await InsertPlayerLeave({
-                        mc_server: saveLeaveData.mc_server,
-                        time: saveLeaveData.time,
-                        username: saveLeaveData.username
+                        server: saveLeaveData.server,
+                        timestamp: saveLeaveData.timestamp,
+                        username: saveLeaveData.username,
+                        uuid: saveLeaveData.uuid
                     })
 
-                    if (!discConn) return;
-                    discConn.socket.send(JSON.stringify({ data: message.data, action: "sendchat", type: "leave" }))
+                    broadcastToAllClients(message.data as MinecraftPlayerLeaveMessage, "minecraft_player_leave", WebSocket_Client_Map)
                     return;
 
-                case "saveadvancement":
-                    const saveadvancementData = message.data as MinecraftChatAdvancement
+                /**
+                 * Saving minecraft player advancement
+                 */
+                case "minecraft_advancement":
+                    const saveadvancementData = message.data as MinecraftAdvancementMessage
 
                     await InsertChatAdvancement({
                         username: saveadvancementData.username,
@@ -109,52 +153,80 @@ const messageHandlers: MessageHandler[] = [
                         uuid: saveadvancementData.uuid
                     });
 
-                    if (!discConn) return;
-                    discConn.socket.send(JSON.stringify({ data: message.data, action: "sendchat", type: "advancement" }))
+                    broadcastToAllClients(message.data as MinecraftAdvancementMessage, "minecraft_advancement", WebSocket_Client_Map)
                     return;
+
+                /**
+                 * Recieving player lists from the minecraft server.
+                 * This will be used to generate the tablist and to update the player list.
+                 */
+                case "send_update_player_list":
+                    const playerListData = message.data["players"] as PlayerList[]
+                    await api.updatePlayerList(playerListData[0].server, playerListData);
             }
         }
     }
 ];
 
+
+/**
+ * Route for connecting to the websocket.
+ * This route is used by the clients to connect to the websocket.
+ */
 export default {
     method: "GET",
-    url: "/authenticate",
+    url: "/websocket/connect",
     json: true,
     isPrivate: true,
     useWebsocket: true,
-    handler: async (connection: SocketStream, rep, database: database) => {
+    handler: async (connection: WebSocket, rep, database: database) => {
+
+        /**
+         * Checking if the client has the correct API key.
+         */
         if (rep.headers["x-api-key"] !== process.env.APIKEY) {
-            connection.socket.send(JSON.stringify({ success: false, reason: "Invalid key" }))
-            return connection.socket.close();
+            connection.send(JSON.stringify({ success: false, reason: "Invalid key" }))
+            return connection.close();
         }
 
-        const clientType: string = rep.headers["client-type"] as "discord" | "minecraft";
+        const clientType: string = rep.headers["client-type"] as "discord" | "minecraft" | "other";
+        const mc_server: string = rep.headers['mc_server'] as string;
+        const indendifier: string = clientType + mc_server
 
-        let clientID: string = rep.headers["client-id"];
-        const indendifier = clientType + clientID
+        Logger.success(`Client type: ${clientType} | Server: ${mc_server} just connected to the API via Websocket`, "WEBSOCKET");
 
-        Logger.success(`Client: ${indendifier} connected.`, "WEBSOCKET");
 
+        /**
+         * Adding the client to the map.
+         */
         WebSocket_Client_Map.set(indendifier, connection);
 
-        connection.socket.on("message", async message => {
+        /**
+         * Handling messages from the client.
+         */
+        connection.on("message", async message => {
             const payload = JSON.parse(message.toString());
             const handler = messageHandlers.find(handler => handler.type === clientType);
 
             if (!handler) {
-                connection.socket.send(JSON.stringify({ success: false, reason: "Invalid payload type." }))
+                connection.send(JSON.stringify({ success: false, reason: "Invalid payload type." }))
                 return;
             };
 
             await handler.handler(payload, connection);
         })
 
-        connection.socket.on('ping', (data) => {
-            connection.socket.pong(data);
+        /**
+         * Handling ping messages.
+         */
+        connection.on('ping', (data) => {
+            connection.pong(data);
         });
 
-        connection.socket.on("close", () => {
+        /**
+         * Handling close messages.
+         */
+        connection.on("close", () => {
             Logger.warn(`Client: ${indendifier} has disconnected from the websocket.`, "WEBSOCKET")
             WebSocket_Client_Map.delete(indendifier);
         })

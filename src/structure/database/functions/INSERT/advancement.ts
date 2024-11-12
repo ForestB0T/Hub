@@ -1,11 +1,12 @@
-import { MinecraftChatAdvancement, MinecraftChatMessage } from "../../../../../index.js";
+import { MinecraftAdvancementMessage } from "../../../../../index.js";
 import ForestBotApi from "../../../../index.js";
 
 // let cachedMessages = [];
 // let lastInsertTime = Date.now();
 
-export default async function InsertChatAdvancement(args: MinecraftChatAdvancement) {
+export default async function InsertChatAdvancement(args: MinecraftAdvancementMessage) {
     const { username, advancement, mc_server, time, uuid } = args;
+    console.log(username, advancement, mc_server, time, uuid, " advancement shit")
     try { 
         await ForestBotApi.database.promisedQuery(
             "INSERT INTO advancements (username, advancement, time, mc_server, uuid) VALUES (?,?,?,?,?)",
