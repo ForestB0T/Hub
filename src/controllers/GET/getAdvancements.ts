@@ -3,10 +3,14 @@ import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
 /**
- * This endpoint will allow for the most recent or first advancements a user has got
- * you can pick the server name, the limit of advancements and the type (last || first)
+ * Get advancements for a user.
+ * 
+ * @Query uuid: string
+ * @Query server: string
+ * @Query limit: number
+ * @Query order: string
+ * 
  */
-
 export default {
     method: "GET",
     url: "/advancements",

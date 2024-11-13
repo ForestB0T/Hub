@@ -14,6 +14,12 @@ import { inboundmessageDataTypes, messageActionTypes, MinecraftChatMessage} from
 export const WebSocket_Client_Map: Map<string, WebSocket> = new Map();
 
 
+/**
+ * Broadcasts a message to all clients connected to the websocket.
+ * @param data 
+ * @param action 
+ * @param clientmap 
+ */
 function broadcastToAllClients(data: inboundmessageDataTypes, action: messageActionTypes, clientmap: Map<string, WebSocket> = WebSocket_Client_Map) {
     clientmap.forEach((client) => {
         if (client.readyState === 1) {

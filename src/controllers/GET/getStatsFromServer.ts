@@ -2,6 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { allStats, RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+/**
+ * Route handler for getting all user statistics from a UUID and a minecraft server.
+ */
 export default {
     method: "GET",
     url: "/user",

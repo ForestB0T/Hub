@@ -2,6 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+/**
+ * Getting a users wordcount
+ */
 export default {
     method: "GET",
     url: "/wordcount",

@@ -3,7 +3,9 @@ import { RouteItem } from "../../..";
 import api from "../../index.js";
 import generateTablist from "../../util/generate/tablist/tablist.js";
 
-
+/**
+ * Route handler for getting a live tablist from a minecraft server.
+ */
 export default {
     method: "GET",
     url: "/tab/:server",

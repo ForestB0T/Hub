@@ -6,7 +6,6 @@ import type { database } from "../../structure/database/createPool";
 /**
  * This route will get uuid from a username.
  */
-
 export default {
     method: "GET",
     url: "/convert-username-to-uuid",

@@ -2,6 +2,10 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+/**
+ * Route handler for finding usernames.
+ * helpful for when a player only remembers part of a username.
+ */
 export default {
     method: "GET",
     url: "/namesearch",

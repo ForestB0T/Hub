@@ -2,13 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { MinecraftChatMessage, RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
-interface MessageRow {
-  name: string;
-  message: string;
-  date: string;
-  mc_server: string;
-}
-
+/**
+ * Route handler for fetching Minecraft chat messages.
+ */
 export default {
   method: "GET",
   url: "/messages",
@@ -16,14 +12,8 @@ export default {
   isPrivate: false,
   handler: async (req: FastifyRequest, reply: FastifyReply, database: database) => {
     try {
- 
-      const { name, server, limit, order} = req.query as { name:string, server:string, limit:string, order:string};
-      // const username = req.params["username"];
-      // const mc_server = req.params["server"];
-      // const limit = Number(req.params["limit"]);
-      // const type = req.params["type"]
-      //const action = type === "last" || type === "DESC".toLowerCase() || type === "DESC" ? "DESC" : "ASC"
 
+      const { name, server, limit, order } = req.query as { name: string, server: string, limit: string, order: string };
       const data = await database.promisedQuery(`
         SELECT name,message,date,mc_server
         FROM messages

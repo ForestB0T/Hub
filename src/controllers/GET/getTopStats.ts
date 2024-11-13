@@ -2,6 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import { database } from "../../structure/database/createPool";
 
+/**
+ * Get the top 5 users statistics for a certain minecraft server
+ */
 export default {
     method: "GET",
     url: "/top-statistic",

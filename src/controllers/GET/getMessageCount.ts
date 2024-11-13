@@ -2,6 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+/**
+ * Get total message count.
+ */
 export default {
     method: "GET",
     url: "/messagecount",

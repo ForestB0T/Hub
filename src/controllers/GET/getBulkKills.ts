@@ -4,8 +4,7 @@ import type { database } from "../../structure/database/createPool";
 
 /**
  * with this endpoint you can get bulk kills by username and server, with a limit and ASC or DESC type (first/last)
- * example: https://api.forestbot.org/kills/notFebzey/simplyvanilla/10/last
- * 
+ *  * 
  */
 export default {
   method: "GET",

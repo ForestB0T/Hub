@@ -4,8 +4,12 @@ import type { database } from "../../structure/database/createPool";
 
 /**
  * Get total advancements count.
+ * 
+ * @Query uuid: string
+ * @Query server: string
+ * 
+ * 
  */
-
 export default {
     method: "GET",
     url: "/advancements-count",
@@ -18,7 +22,6 @@ export default {
           server
         } = req.query as any;
 
-        console.log(uuid, server)
         const result = await database.promisedQuery(`
             SELECT COUNT(*) as total
             FROM advancements

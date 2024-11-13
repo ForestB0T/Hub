@@ -7,7 +7,6 @@ import ForestApi from "../../structure/Api/ForestApi";
  * This endpoint takes in a username and will check the 
  * connected servers map to see if the user is online in any of the servers.
  */
-
 export default {
     method: "GET",
     url: "/online",
