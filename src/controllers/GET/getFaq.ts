@@ -18,8 +18,8 @@ export default {
             } = req.query as any;
 
             const query = !id ?
-                `SELECT username, uuid, server, id, faq, timestamp FROM faq ORDER BY RAND() LIMIT 1` :
-                `SELECT username, uuid, server, id, faq, timestamp FROM faq WHERE id = ?`
+            `SELECT username, uuid, server, id, faq, timestamp, (SELECT COUNT(*) FROM faq) AS total FROM faq ORDER BY RAND() LIMIT 1` :
+            `SELECT username, uuid, server, id, faq, timestamp, (SELECT COUNT(*) FROM faq) AS total FROM faq WHERE id = ?`;
 
             const result = await database.promisedQuery(query, [id]);
 
@@ -33,7 +33,8 @@ export default {
                 server: result[0].server,
                 id: result[0].id,
                 faq: result[0].faq,
-                timestamp: result[0].timestamp
+                timestamp: result[0].timestamp,
+                total: result[0].total
 
             };
 

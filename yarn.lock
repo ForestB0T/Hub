@@ -618,6 +618,17 @@ forestbot-api-wrapper-v2@^1.4.7:
     axios "^1.6.5"
     ws "^8.16.0"
 
+forestbot-api-wrapper-v2@^1.4.8:
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/forestbot-api-wrapper-v2/-/forestbot-api-wrapper-v2-1.4.8.tgz#d124900f5a71a2cdba22f925bede3f2b7bfc3c19"
+  integrity sha512-VB2qTbT61n7rMn0qQMFUy7FcIDgk7XI/Y2mDTOjGgrjdTn4+eaYxs1L4N5Hr2CjcIvbAyaH8/z1QoOWhawc0ig==
+  dependencies:
+    "@types/node" "^20.11.5"
+    "@types/ws" "^8.5.10"
+    axios "^1.6.5"
+    forestbot-api-wrapper-v2 "^1.4.7"
+    ws "^8.16.0"
+
 form-data@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.1.tgz#ba1076daaaa5bfd7e99c1a6cb02aa0a5cff90d48"

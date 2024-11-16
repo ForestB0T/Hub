@@ -12,7 +12,7 @@
     "chalk": "^5.0.0",
     "dotenv": "^14.1.0",
     "fastify": "^5.0.0",
-    "forestbot-api-wrapper-v2": "^1.4.7",
+    "forestbot-api-wrapper-v2": "^1.4.8",
     "mysql": "^2.18.1",
     "node-cron": "^3.0.2",
     "ts-node": "^10.9.2",
