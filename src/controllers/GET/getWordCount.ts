@@ -29,7 +29,9 @@ export default {
                 return reply.code(501).send({ Error: "user not found." })
             }
             const data = {
-                count: res[0].word_count
+                name: user,
+                count: res[0].word_count,
+                word: word
             }
             reply.code(200).header('Content-Type', 'application/json').send(data)
             return;
