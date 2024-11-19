@@ -9,7 +9,7 @@ export default async function InsertPlayerJoin(args: MinecraftPlayerJoinArgs) {
         const dbResults = await ForestBotApi.database.promisedQuery("SELECT * FROM users WHERE uuid = ? AND mc_server = ?", [uuid, server]);
         
         if (!dbResults || !dbResults.length) {
-            await ForestBotApi.database.promisedQuery("INSERT INTO users(username, joindate, uuid, joins, mc_server) VALUES (?,?,?,?,?)", [username, timestamp, uuid, 1, server]);
+            await ForestBotApi.database.promisedQuery("INSERT INTO users(username, joindate, lastseen, uuid, joins, mc_server) VALUES (?,?,?,?,?,?)", [username, timestamp, timestamp, uuid, 1, server]);
             //first join send to correct websocket with mc server.
             const conn = WebSocket_Client_Map.get("minecraft"+server);
             conn.send(JSON.stringify({ action: "new_user", data: { user: username, server: server } }));

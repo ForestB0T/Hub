@@ -21,8 +21,15 @@ export default class ForestApi {
 
     public server: FastifyInstance;
     public database: Database;
+
+    // Currently connected websocket clients.
     public connectedClients: Map<string, WebSocket> = new Map();
+
+    // Currently connected minecraft servers.
     public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
+
+    // Sessions, timestamp being the time they logged in.
+    public playerSessions = new Map<string, { username: string, server: string, timestamp: number }>();
 
     constructor(private port: number) {
         this.server = Fastify();
