@@ -1,6 +1,7 @@
 import { MinecraftPlayerJoinArgs } from "../../../../../index.js";
 import ForestBotApi from "../../../../index.js";
 import { WebSocket_Client_Map } from "../../../../controllers/websocket/auth.js";
+import api from "../../../../index.js"
 
 export default async function InsertPlayerJoin(args: MinecraftPlayerJoinArgs) {
     const { username, uuid, server, timestamp } = args;
@@ -31,6 +32,24 @@ export default async function InsertPlayerJoin(args: MinecraftPlayerJoinArgs) {
             "UPDATE users SET joins = joins + 1, lastseen = ? WHERE uuid = ? AND mc_server = ?",
             [timestamp, uuid, server]
         );
+
+        if (!api.playerSessions.get(server)) {
+            api.playerSessions.set(server, []);
+        }
+
+        api.playerSessions.get(server).push({
+            username: username,
+            uuid: uuid,
+            mc_server: server,
+            timestamp: timestamp,
+            join_time: timestamp,
+            leave_time: "",
+            playtime: 0,
+            kills: 0,
+            deaths: 0,
+            advancements_gained: 0,
+            messages_sent: 0
+        });
 
         return;
 

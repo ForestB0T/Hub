@@ -11,6 +11,20 @@ export default async function InsertPlayerPlaytime(args: PlayerList[]) {
             "UPDATE users SET playtime = playtime + 60000 WHERE username IN (?) AND mc_server = ?",
             [usernames, args[0].server]
         )
+
+        const server = args[0].server;
+
+        if (ForestBotApi.playerSessions.has(server)) {
+            const sessions = ForestBotApi.playerSessions.get(server);
+
+            for (const player of args) {
+                const session = sessions.find(s => s.uuid === player.uuid);
+                if (session) {
+                    session.playtime += 60000;
+                }
+            }
+        }
+
     } catch (err) { 
         Logger.error(`Database query failed: ${err.message}`);
     }

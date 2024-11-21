@@ -24,6 +24,19 @@ export default async function InsertMinecraftDeath(args: MinecraftPlayerDeath) {
                 "INSERT into deaths (victim, death_message, murderer, time, type, mc_server, victimUUID, murdererUUID) VALUES (?,?,?,?,?,?,?,?)",
                 [victim, death_message, murderer, time, "pvp", mc_server, victimUUID, murdererUUID]
             )
+
+            const sessions = ForestBotApi.playerSessions.get(mc_server)
+            if (sessions) {
+                const userMurdererSesson = sessions.find(user => user.uuid === murdererUUID)
+                const userVictimSession = sessions.find(user => user.uuid === victimUUID)
+    
+                if (userMurdererSesson && userVictimSession) {
+                    userMurdererSesson.kills += 1
+                    userVictimSession.deaths += 1
+                }
+
+            }
+
         } else {
             await ForestBotApi.database.promisedQuery(
                 "UPDATE users SET deaths = deaths + 1, lastdeathString = ?, lastdeathTime = ? WHERE username = ? AND mc_server = ?",
@@ -34,6 +47,15 @@ export default async function InsertMinecraftDeath(args: MinecraftPlayerDeath) {
                 "INSERT into deaths (victim, death_message, time, type, mc_server, victimUUID) VALUES (?, ?, ?, ?, ?, ?)",
                 [victim, death_message, time, "pve", mc_server, victimUUID]
             )
+
+            const sessions = ForestBotApi.playerSessions.get(mc_server)
+            if (sessions) {
+                const userVictimSession = sessions.find(user => user.uuid === victimUUID)
+                if (userVictimSession) {
+                    userVictimSession.deaths += 1
+                }
+            }
+
         }
 
         return true;

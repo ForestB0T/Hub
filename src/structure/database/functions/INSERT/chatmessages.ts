@@ -13,6 +13,14 @@ export default async function InsertChatMessage(args: MinecraftChatMessage) {
             [name, message, date, mc_server]
         )
 
+        const sessions = ForestBotApi.playerSessions.get(mc_server)
+        if (sessions) {
+            const userSession = sessions.find(user => user.username === name)
+            if (userSession) {
+                userSession.messages_sent += 1
+            }
+        }
+
     } catch (err) {
         console.error(err);
     }

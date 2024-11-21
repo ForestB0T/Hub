@@ -126,6 +126,7 @@ const messageHandlers: MessageHandler[] = [
                     } catch (err) {
                         console.error(err, " Error in player join")
                     }
+
                     broadcastToAllClients(message.data as MinecraftPlayerJoinArgs, "minecraft_player_join", WebSocket_Client_Map)
                     return;
 

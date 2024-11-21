@@ -1,4 +1,4 @@
-import type { PlayerList, RouteItem } from '../../../index.js';
+import type { PlayerList, RouteItem, Sessions } from '../../../index.js';
 import Fastify, { FastifyInstance, RouteOptions } from 'fastify';
 import websocket, { WebSocket } from "@fastify/websocket";
 import cors from '@fastify/cors';
@@ -29,7 +29,9 @@ export default class ForestApi {
     public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
 
     // Sessions, timestamp being the time they logged in.
-    public playerSessions = new Map<string, { username: string, server: string, timestamp: number }>();
+    // key is mc server.
+    // eventually add kills and deaths for sessions, and other data.
+    public playerSessions = new Map<string, Sessions[]>();
 
     constructor(private port: number) {
         this.server = Fastify();

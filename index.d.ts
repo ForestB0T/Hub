@@ -135,3 +135,17 @@ interface MessageHandler {
     type: string;
     handler: (message: WebsocketMessage | DiscordMessage | MinecraftMessage, connection: SocketStream) => Promise<void>;
 }
+
+interface Sessions {
+    username: string;
+    uuid: string;
+    mc_server: string;
+    join_time: string;
+    leave_time: string;
+    playtime: number;
+    kills: number;
+    deaths: number;
+    advancements_gained: number
+    messages_sent: number;
+    timestamp: string;
+}
