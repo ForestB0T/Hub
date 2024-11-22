@@ -15,11 +15,13 @@ export default async function InsertChatAdvancement(args: MinecraftAdvancementMe
 
         const sessions = ForestBotApi.playerSessions.get(mc_server);
         if (sessions) {
-            const userSession = sessions.find(user => user.uuid = uuid);
+            const userSession = sessions.find(user => user.username = username);
             if (userSession) {
                 userSession.advancements_gained += 1
             }
         }
+
+        return
 
     } catch (err) {
         console.error(err);
