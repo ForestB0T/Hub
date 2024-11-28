@@ -9,8 +9,6 @@ export default {
     handler: async (req, reply, database: database) => {
         const { uuid, date, server } = req.query;
 
-        console.log(uuid, date, server)
-
         if (!uuid || !date) {
             return reply.code(400).send({ success: false, message: "Missing 'uuid' or 'date' query parameter." });
         }
@@ -60,9 +58,7 @@ export default {
             }));
 
             // Send the formatted data (this could be returned in a response or used elsewhere)
-            return reply.code(200).send({
-                formattedData
-            });
+            return reply.code(200).send(formattedData);
 
         } catch (err) {
             console.error(err);
