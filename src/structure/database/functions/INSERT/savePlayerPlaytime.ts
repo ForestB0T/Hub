@@ -21,6 +21,20 @@ export default async function InsertPlayerPlaytime(args: PlayerList[]) {
                 const session = sessions.find(s => s.uuid === player.uuid);
                 if (session) {
                     session.playtime += 60000;
+                } else {
+                    sessions.push({
+                        uuid: player.uuid,
+                        playtime: 60000,
+                        username: player.username,
+                        mc_server: server,
+                        join_time: Date.now().toString(),
+                        leave_time: "",
+                        kills: 0,
+                        deaths: 0,
+                        advancements_gained: 0,
+                        messages_sent: 0,
+                        timestamp: ""
+                    });
                 }
             }
         }
