@@ -11,7 +11,7 @@ export default async function InsertPlayerSession(userSession: Sessions) {
                 userSession.uuid,
                 userSession.mc_server,
                 userSession.join_time,
-                userSession.timestamp,
+                Date.now(),
                 userSession.playtime,
                 userSession.kills,
                 userSession.deaths,
