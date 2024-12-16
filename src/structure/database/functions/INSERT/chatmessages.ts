@@ -5,7 +5,7 @@ import ForestBotApi from "../../../../index.js";
 // let lastInsertTime = Date.now();
 
 export default async function InsertChatMessage(args: MinecraftChatMessage) {
-    const { name, message, mc_server, date } = args;
+    const { name, message, mc_server, date, uuid } = args;
 
     try { 
         await ForestBotApi.database.promisedQuery(

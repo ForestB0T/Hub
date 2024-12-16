@@ -1,10 +1,11 @@
 import { MinecraftPlayerLeaveMessage } from "../../../../../index.js";
 import api from "../../../../index.js";
+import InsertPlayerSession from "./insertSession.js";
 
 export default async function InsertPlayerLeave(args: MinecraftPlayerLeaveMessage) {
-    const { username, server, timestamp, uuid} = args;
+    const { username, server, timestamp, uuid } = args;
 
-    try { 
+    try {
         await api.database.promisedQuery("UPDATE users SET leaves = leaves + 1, lastseen = ? WHERE uuid = ? AND mc_server = ?", [timestamp, uuid, server]);
 
         // we want to remove the player from the session list,
@@ -12,35 +13,27 @@ export default async function InsertPlayerLeave(args: MinecraftPlayerLeaveMessag
         // const userSessions = api.playerSessions.get(server);
         // const userCompletedSession = userSessions.
 
-        const userSession = api.playerSessions.get(server).find((session) => session.uuid === uuid);
-        if (!userSession) {
-            console.error("User session not found.");
+        const sessions = api.playerSessions.get(server);
+        if (!sessions) {
+            console.error("No sessions found for server: ", server);
             return;
+        } else {
+            const userSession = sessions.find(user => user.uuid === uuid);
+            if (!userSession) {
+                console.error("No session found for user: ", username);
+                return;
+            }
+
+            // save to database i guess :P first ima make a type for the database table
+
+            await InsertPlayerSession(userSession);
+
+
+            const updatedSessons = api.playerSessions.get(server).filter((session) => session.uuid !== uuid);
+            api.playerSessions.set(server, updatedSessons);
+
+            return
         }
-
-        // save to database i guess :P first ima make a type for the database table
-
-        await api.database.promisedQuery(
-            "INSERT into sessions (username, uuid, mc_server, join_time, leave_time, playtime, kills, deaths, advancements_gained, messages_sent) VALUES (?,?,?,?,?,?,?,?,?,?)",
-            [
-                userSession.username,
-                userSession.uuid,
-                userSession.mc_server,
-                userSession.join_time,
-                timestamp,
-                userSession.playtime,
-                userSession.kills,
-                userSession.deaths,
-                userSession.advancements_gained,
-                userSession.messages_sent
-            ]
-        )
-
-        
-        const updatedSessons = api.playerSessions.get(server).filter((session) => session.uuid !== uuid);
-        api.playerSessions.set(server, updatedSessons); 
-
-        return
 
     } catch (err) {
         console.error(err, " Player leave error");

@@ -1,20 +1,35 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { database } from "../../structure/database/createPool.js";
 
+const durations = {
+    "1_week": 7 * 24 * 60 * 60 * 1000,
+    "1_month": 30 * 24 * 60 * 60 * 1000,
+    "2_months": 60 * 24 * 60 * 60 * 1000,
+    "3_months": 90 * 24 * 60 * 60 * 1000,
+    "4_months": 120 * 24 * 60 * 60 * 1000,
+    "5_months": 150 * 24 * 60 * 60 * 1000,
+    "6_months": 180 * 24 * 60 * 60 * 1000,
+};
+
 export default {
     method: "GET",
     url: "/player/playtime",
     json: true,
     isPrivate: false,
     handler: async (req, reply, database: database) => {
-        const { uuid, date, server } = req.query;
+        const { uuid, date, server, duration } = req.query;
 
+        const dura = durations[duration];
+        if (!dura) {
+            return reply.code(400).send({ success: false, message: "Invalid 'duration' query parameter." });
+        }
+        
         if (!uuid || !date) {
             return reply.code(400).send({ success: false, message: "Missing 'uuid' or 'date' query parameter." });
         }
 
         const endDate = Number(date); // Current day in milliseconds (Unix timestamp).
-        const startDate = endDate - 7 * 24 * 60 * 60 * 1000; // 1 week earlier.
+        const startDate = endDate - dura; // 1 week earlier.
 
         try {
             const query = `
