@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * with this endpoint you can get bulk kills by username and server, with a limit and ASC or DESC type (first/last)
@@ -25,7 +26,8 @@ export default {
         `, [server, uuid]);
 
       if (!data || data.length === 0) {
-        return reply.code(404).send({ error: "No data found." });
+        sendError(reply, "No kills found for this user.");
+        return
       }
 
       let replyData = {
@@ -34,8 +36,8 @@ export default {
 
       reply.code(200).header('Content-Type', 'application/json').send(replyData);
     } catch (err) {
-      console.error(err);
-      reply.status(500).send({ success: false, message: 'Internal Server Error' });
+      sendError(reply, "Database Error while fetching kills.");
+      return
     }
   }
 } as RouteItem;

@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Route handler for finding usernames.
@@ -34,8 +35,7 @@ export default {
             reply.code(200).header("Content-Type", "application/json").send({usernames: usernames });
 
         } catch (err) {
-            console.error(err);
-            reply.code(200).send({ Error: "Error retrieving from database." })
+            sendError(reply, "Database Error while fetching usernames.");
             return;
         }
 

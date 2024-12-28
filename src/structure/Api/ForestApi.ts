@@ -22,9 +22,6 @@ export default class ForestApi {
     public server: FastifyInstance;
     public database: Database;
 
-    // Currently connected websocket clients.
-    public connectedClients: Map<string, WebSocket> = new Map();
-
     // Currently connected minecraft servers.
     public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
 

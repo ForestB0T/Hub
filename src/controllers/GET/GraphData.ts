@@ -1,5 +1,5 @@
-import { FastifyRequest, FastifyReply } from "fastify";
 import { database } from "../../structure/database/createPool.js";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 const durations = {
     "1_week": 7 * 24 * 60 * 60 * 1000,
@@ -21,11 +21,13 @@ export default {
 
         const dura = durations[duration];
         if (!dura) {
-            return reply.code(400).send({ success: false, message: "Invalid 'duration' query parameter." });
+            sendError(reply, "Invalid duration. Valid durations are: 1_week, 1_month, 2_months, 3_months, 4_months, 5_months, 6_months.");
+            return;
         }
         
         if (!uuid || !date) {
-            return reply.code(400).send({ success: false, message: "Missing 'uuid' or 'date' query parameter." });
+            sendError(reply, "Missing required parameters. Required parameters: uuid, date.");
+            return;
         }
 
         const endDate = Number(date); // Current day in milliseconds (Unix timestamp).
@@ -41,7 +43,8 @@ export default {
             const sessions = await database.promisedQuery(query, [uuid, startDate.toString(), endDate.toString(), server]);
 
             if (!sessions || sessions.length === 0) {
-                return reply.code(404).send({ success: false, message: "No session data found for the given UUID and date range." });
+                sendError(reply, "No playtime found for this player.");
+                return;
             }
 
             const playtimePerDay = {};
@@ -76,8 +79,8 @@ export default {
             return reply.code(200).send(formattedData);
 
         } catch (err) {
-            console.error(err);
-            reply.status(500).send({ success: false, message: "Internal Server Error" });
+            sendError(reply, "Database Error while fetching playtime.");
+            return;
         }
     }
 };

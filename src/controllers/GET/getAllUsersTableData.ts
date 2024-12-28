@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { database } from "../../structure/database/createPool.js";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 
 export default {
@@ -22,8 +23,8 @@ export default {
 
             reply.code(200).header('Content-Type', 'application/json').send(data);
         } catch (err) {
-            console.error(err);
-            reply.status(500).send({ success: false, message: 'Internal Server Error' });
+            sendError(reply, "Database Error while fetching user stats.");
+            return;
         }
 
     }

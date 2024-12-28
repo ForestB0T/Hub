@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 import levenshtein from "fastest-levenshtein";
 
 export default {
@@ -16,12 +17,12 @@ export default {
             server = req.body["server"]
 
         if (faq.startsWith("/")) {
-            reply.code(400).send({ Error: "faq's cannot start with '/'" });
+            sendError(reply, "faq's cannot start with '/'");
             return;
         }
 
         if (faq.length < 5) {
-            reply.code(400).send({ Error: "faq's must be at least 5 characters long." });
+            sendError(reply, "faq's must be at least 5 characters long.");
             return;
         }
 
@@ -38,24 +39,21 @@ export default {
 
         try {
 
-            const existingFaqs = await database.promisedQuery(`SELECT faq FROM faq_test WHERE server = ?`, [server]);    
+            const existingFaqs = await database.promisedQuery(`SELECT faq FROM faq WHERE server = ?`, [server]);    
 
             for (const existingFaq of existingFaqs) {
                 const existingFaqNormalized = normalizeFaq(existingFaq["faq"]);
                 const distance = levenshtein.distance(faqNormalized, existingFaqNormalized);
                 const maxDistance = Math.max(faqNormalized.length, existingFaqNormalized.length);
                 const similarity = (1 - (distance / maxDistance)) * 100;
-            
                 if (similarity > 80) {
-                    reply.code(400).send({ Error: "faq is too similar to an existing faq." });
+                    sendError(reply, "faq is too similar to an existing faq.");
                     return;
                 }
-
-
             }
 
             const data = await database.promisedQuery(`
-            INSERT INTO faq_test (username, faq, uuid, server, timestamp)
+            INSERT INTO faq (username, faq, uuid, server, timestamp)
             VALUES (?, ?, ?, ?, ?)
           `, [username, faq, uuid, server, now]);
 
@@ -64,7 +62,7 @@ export default {
             return;
         } catch (err) {
             console.error(err)
-            reply.code(200).send({ Error: "Database Error while adding a faq." });
+            sendError(reply, "Database Error while adding a faq.");
             return;
         }
     }

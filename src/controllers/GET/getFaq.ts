@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Get a random faq or a specific faq by id.
@@ -24,7 +25,8 @@ export default {
             const result = await database.promisedQuery(query, [id]);
 
             if (!result[0]) {
-                return reply.code(501).send({ Error: "faq not found." })
+                sendError(reply, "No faq found for this user.");
+                return
             }
 
             const replyData = {

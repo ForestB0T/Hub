@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Getting a users whois description
@@ -20,21 +21,23 @@ export default {
                 [user]
             )
 
-            if (!res || !res.length || !res[0].description) throw new Error("No results.")
+            if (!res || !res.length || !res[0].description) {
+                sendError(reply, "No user found with this username.");
+                return;
+            }
 
             const username = res[0].username;
             const description = res[0].description;
-            
+
             const data = {
                 username: username,
                 description: description
             };
-            
+
             reply.code(200).header("Content-Type", "application/json").send(data);
 
         } catch (err) {
-            console.error(err);
-            reply.code(200).send({ Error: "Error retrieving from database."})
+            sendError(reply, "Database Error while fetching user stats.");
             return;
         }
 

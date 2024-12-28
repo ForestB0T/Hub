@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Getting a users wordcount
@@ -11,7 +12,6 @@ export default {
     json: true,
     isPrivate: false,
     handler: (req: FastifyRequest, reply: FastifyReply, database: database) => {
-
 
         const word: string = req.query["word"];
         const serv: string = req.query['server'];
@@ -25,8 +25,8 @@ export default {
 
         `, [serv, user, word], (err, res) => {
             if (err || !res[0] || !res[0].word_count) {
-                console.error(err)
-                return reply.code(501).send({ Error: "user not found." })
+                sendError(reply, "No messages found for this user.");
+                return;
             }
             const data = {
                 name: user,

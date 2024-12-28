@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
 
+
 export default {
     method: "POST", 
     url: "/whois-description",

@@ -202,7 +202,6 @@ export default {
 
         Logger.success(`Client type: ${clientType} | Server: ${mc_server} just connected to the API via Websocket`, "WEBSOCKET");
 
-
         /**
          * Adding the client to the map.
          */

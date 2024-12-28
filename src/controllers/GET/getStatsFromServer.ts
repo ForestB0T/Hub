@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { allStats, RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Route handler for getting all user statistics from a UUID and a minecraft server.
@@ -14,7 +15,10 @@ export default {
         const { server, uuid} = req.query as { server: string, uuid: string};
         
         database.Pool.query(`SELECT * from users WHERE uuid = ? AND mc_server = ?`, [uuid, server], (err, res) => {
-            if (err || !res[0] || !res[0].username) return reply.code(501).send({ Error: "user not found." })
+            if (err || !res[0] || !res[0].username){
+                sendError(reply, "No user found.");
+                return;
+            }
             const i: allStats = res[0];
             reply.code(200).header('Content-Type', 'application/json').send({
                 username: i.username,

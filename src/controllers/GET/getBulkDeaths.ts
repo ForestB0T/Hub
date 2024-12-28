@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Get total deaths count.
@@ -41,15 +42,16 @@ export default {
       const data = await database.promisedQuery(selectQuery, queryParams);
 
       if (!data || data.length === 0) {
-        return reply.code(404).send({ error: "No data found." });
+        sendError(reply, "No deaths found for this user.");
+        return
       }
 
       let replyData = data
 
       reply.code(200).header('Content-Type', 'application/json').send(replyData);
     } catch (err) {
-      console.error(err);
-      reply.status(500).send({ success: false, message: 'Internal Server Error' });
+      sendError(reply, "Database Error while fetching deaths.");
+      return
     }
   }
 } as RouteItem;

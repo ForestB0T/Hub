@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteItem } from "../../..";
 import type { database } from "../../structure/database/createPool";
+import sendError from "../../util/functions/replyTools/sendError.js";
 
 /**
  * Get advancements for a user.
@@ -34,7 +35,8 @@ export default {
         `, [server, uuid]);
 
         if (!data || data.length === 0) {
-          return reply.code(404).send({ error: "No data found." });
+          sendError(reply, "No advancements found for this user.");
+          return
         }
 
         const replyData = {
@@ -43,8 +45,8 @@ export default {
 
         reply.code(200).header('Content-Type', 'application/json').send(replyData);
       } catch (err) {
-        console.error(err);
-        reply.status(500).send({ success: false, message: 'Internal Server Error' });
+        sendError(reply, "Database Error while fetching advancements.");
+        return;
       }
     }
   } as RouteItem;
