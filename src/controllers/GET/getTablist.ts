@@ -21,7 +21,7 @@ export default {
     handler: async (req: FastifyRequest, reply: FastifyReply) => {
         const server = req.params['server'];
 
-     //   const playerList = { playerlist: fakePlayers}
+      //  const playerList = { playerlist: fakePlayers}
         const playerList = api.connectedServers.get(server);
         if (!playerList) {
             sendError(reply, "Server not found.");

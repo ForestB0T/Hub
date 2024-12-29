@@ -21,13 +21,7 @@ export default class ForestApi {
 
     public server: FastifyInstance;
     public database: Database;
-
-    // Currently connected minecraft servers.
     public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
-
-    // Sessions, timestamp being the time they logged in.
-    // key is mc server.
-    // eventually add kills and deaths for sessions, and other data.
     public playerSessions = new Map<string, Sessions[]>();
 
     constructor(private port: number) {

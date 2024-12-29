@@ -1,5 +1,14 @@
 import Canvas from 'canvas';
 import { PlayerList } from '../../../..';
+import { readdirSync } from 'fs';
+
+
+const getRandomImagePath = () => {
+    // get a random image ending in .png from ./assets/images
+    const images = readdirSync('./assets/images').filter(file => file.endsWith('.png'));
+    const randomImage = images[Math.floor(Math.random() * images.length)];
+    return `./assets/images/${randomImage}`;
+}
 
 const draw = (names: PlayerList[]) => {
 
@@ -20,7 +29,7 @@ const draw = (names: PlayerList[]) => {
         const canvas = Canvas.createCanvas(width, totalHeight);
         const ctx = canvas.getContext("2d");
 
-        const background = await Canvas.loadImage('./assets/new.png');
+        const background = await Canvas.loadImage(getRandomImagePath());
         ctx.drawImage(background, 0, 0, width, totalHeight);
 
         ctx.globalAlpha = 0.55; // Set opacity for the black layer
@@ -76,7 +85,7 @@ const draw = (names: PlayerList[]) => {
         }
 
         const drawBlock = async (x: number, y: number, name: string, ping: number, avatar: Canvas.Image | null) => {
-            ctx.fillStyle = "rgba(78, 78, 78, 0.38)"; // Lighter color for the block
+            ctx.fillStyle = "rgba(32, 32, 32, 0.61)"; // Lighter color for the block
             ctx.fillRect(x, y, blockWidth, blockHeight);
 
             try {
@@ -123,7 +132,7 @@ const draw = (names: PlayerList[]) => {
         await renderTab(names);
 
         // Add the text "https://forestbot.org/" underneath the tablist
-        const footerText = "Tablist Generation By: https://forestbot.org/";
+        const footerText = "Tablist Generation By: forestbot.org";
         const footerTextWidth = ctx.measureText(footerText).width;
         const footerX = (width - footerTextWidth) / 2;
         const footerY = (totalHeight + (maxRows * (blockHeight + 1) - 1)) / 2 + 50; // Adjusted Y position for footer text
