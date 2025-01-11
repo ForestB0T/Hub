@@ -2,6 +2,7 @@ import { createPool, Pool } from 'mysql';
 import chalk from 'chalk';
 import dbConfig from '../../config.js';
 import util from "util";
+import Logger from '../logger/Logger.js';
 
 export type database = {
     Pool: Pool
@@ -17,7 +18,10 @@ export default class Database implements database {
     constructor() {
 
         this.Pool = createPool(dbConfig);
-        this.Pool.getConnection(err => err ? console.error(err, " error connecting to the database") : console.log(chalk.greenBright("Connected to database successfully.")));
+        this.Pool.getConnection(err => err ? 
+            Logger.database("Failed to connect to the database")
+            : 
+            Logger.database("Connected to the database"));
         this.promisedQuery = util.promisify(this.Pool.query).bind(this.Pool);
 
     }

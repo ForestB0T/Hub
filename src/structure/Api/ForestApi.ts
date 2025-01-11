@@ -10,15 +10,12 @@ import Logger from '../logger/Logger.js';
 import fetchAvatar from '../../util/fetchAvatar.js';
 import path from 'path';
 import InsertPlayerPlaytime from '../database/functions/INSERT/savePlayerPlaytime.js';
-
+import InsertServerPlayerCount from '../database/functions/INSERT/InsertServerPlayerCount.js';
 
 /**
- * 
  * Main Class for ForestBOT Data API.
- * 
  */
 export default class ForestApi {
-
     public server: FastifyInstance;
     public database: Database;
     public connectedServers: Map<string, { playerlist: PlayerList[], timestamp: number }> = new Map();
@@ -26,48 +23,53 @@ export default class ForestApi {
 
     constructor(private port: number) {
         this.server = Fastify();
-        this.server.setNotFoundHandler(async (request, reply) => await reply.code(404).type('text/html').send('Route not found.'))
+        this.server.setNotFoundHandler(async (request, reply) => await reply.code(404).type('text/html').send('Route not found.'));
         this.database = new Database();
 
+        /**
+         * Checking connected servers every 2 minutes. (mc bots)
+         */
         cron.schedule('*/2 * * * *', () => {
             this.checkConnectedServers();
-        })
+        });
 
-        this.startServer();
-
+        //create a timer or cron that runs every 1 hour to insert the player count for each server
+        cron.schedule('0 * * * *', async () => {
+            for (const [server, data] of this.connectedServers) {
+                if (!server || !data) return;
+                const count = data.playerlist.length;
+                await InsertServerPlayerCount(count, server);
+            }
+        });
     }
 
     /**
      * Starting the ForestBot API.
-     * @param this 
      */
     async startServer(this: ForestApi) {
         try {
-            await this.server.register(cors, {})
+            await this.server.register(cors, {});
             await this.server.register(websocket);
             await this.loadRoutesRecursive("./dist/controllers");
 
-            await this.server.listen({ port: this.port })
-            Logger.success(`API started. Listening on port: ${this.port}`, "ForestBotAPI")
+            await this.server.listen({ port: this.port });
+            Logger.success(`API started. Listening on port: ${this.port}`, "ForestBotAPI");
             return;
-        }
-        catch (err) {
-            console.error(err)
+        } catch (err) {
+            console.error(err);
             this.server.log.error(err, " Caught an error while trying to start the server");
             return process.exit(1);
         }
     }
 
     /**
-     * Updating player list for specific minecraft server.
-     * Data here will be used for tablist generation.
-     * and to determine if a bot is connected. That will change.
-     * @param mc_server 
-     * @param users 
+     * Updating player list for a specific Minecraft server.
+     * Data here will be used for tablist generation and to determine if a bot is connected.
+     * @param mc_server - The Minecraft server identifier
+     * @param users - List of players
      */
     public async updatePlayerList(mc_server: string, users: PlayerList[]): Promise<void> {
-
-        await InsertPlayerPlaytime(users)
+        await InsertPlayerPlaytime(users);
 
         const serverData = this.connectedServers.get(mc_server);
         if (serverData) {
@@ -80,7 +82,7 @@ export default class ForestApi {
                     try {
                         user.headurl = await fetchAvatar(user.username);
                     } catch (err) {
-                        continue
+                        continue;
                     }
                 }
             }
@@ -96,17 +98,15 @@ export default class ForestApi {
                 try {
                     headurl = await fetchAvatar(user.username);
                 } catch (err) {
-                    continue
+                    continue;
                 }
                 playerlist.push({ ...user, headurl: headurl });
             }
 
-            Logger.success(`Mineflayer bot: ${mc_server} connected.`, "ForestBotAPI")
+            Logger.minecraft(`bot: ${mc_server} connected.`, "ForestBotAPI");
             this.connectedServers.set(mc_server, { playerlist: playerlist, timestamp: Date.now() });
-
         }
     }
-
 
     /**
      * Checking the list of connected servers and the last time they pinged.
@@ -118,13 +118,14 @@ export default class ForestApi {
             if (!server || !data) return;
             if (now - data.timestamp > 2 * 60000) {
                 this.connectedServers.delete(server);
-                Logger.warn(`Mineflayer bot: ${server} has not been heard from in 2 minutes.`, "ForestBotAPI")
+                Logger.minecraft(`bot: ${server} has not been heard from in 2 minutes.`, "ForestBotAPI");
             }
         }
     }
 
     /**
-     * Loading api endpoints.
+     * Loading API endpoints recursively from the specified directory.
+     * @param routePath - The path to the directory containing route files
      */
     async loadRoutesRecursive(routePath: string) {
         const files = await fs.readdir(routePath);
@@ -133,9 +134,7 @@ export default class ForestApi {
                 const filePath = path.join(routePath, file);
                 const stat = await fs.stat(filePath);
                 if (stat.isDirectory()) {
-
                     await this.loadRoutesRecursive(filePath);
-
                 } else if (file.endsWith(".js")) {
                     const routeItem: RouteItem = (await import(`../../../${filePath.replace(/\\/g, '/')}`)).default;
                     this.server.route({
@@ -144,28 +143,23 @@ export default class ForestApi {
                         json: routeItem.json,
                         websocket: routeItem.useWebsocket,
                         handler: (req, reply) => {
-
                             if (routeItem.useWebsocket) {
-                                routeItem.handler(req, reply, this.database, this)
+                                routeItem.handler(req, reply, this.database, this);
                                 return;
                             }
                             if (routeItem.isPrivate && req.headers["x-api-key"] !== process.env.APIKEY) {
                                 reply.status(401).send({ error: 'Unauthorized' });
                                 return;
                             } else {
-                                routeItem.handler(req, reply, this.database, this)
+                                routeItem.handler(req, reply, this.database, this);
                             }
                         }
                     } as RouteOptions);
-                    Logger.success(`${routeItem.method}: ${routeItem.url} loaded`, "APIROUTE")
-                };
-
+                    Logger.success(`${routeItem.method}: ${routeItem.url} loaded`, "APIROUTE");
+                }
             }
         } catch (err) {
-            console.error(err, " Error while trying to load routes.")
+            console.error(err, " Error while trying to load routes.");
         }
-
     }
-
-
 }

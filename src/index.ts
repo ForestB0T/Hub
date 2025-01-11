@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk     from 'chalk';
 import { port }  from './config.js';
 import ForestApi from './structure/Api/ForestApi.js';
 
@@ -16,4 +16,8 @@ console.log(`
                                         made by Febzey#1854
 `);
 
-export default new ForestApi(port);
+const api = new ForestApi(port);
+api.startServer();
+
+
+export default api
