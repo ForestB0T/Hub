@@ -26,13 +26,14 @@ export default async function InsertPlayerLeave(args: MinecraftPlayerLeaveMessag
                     await InsertPlayerSession(user);
                 }
                 Logger.info(`Bot left the server ${server}, saving all user sessions to the database.`);
-                return
             } else {
                 await InsertPlayerSession(userSession);
-                const updatedSessons = api.playerSessions.get(server).filter((session) => session.uuid !== uuid);
-                api.playerSessions.set(server, updatedSessons);
-                return
             }
+
+            const updatedSessons = api.playerSessions.get(server).filter((session) => session.uuid !== uuid);
+            api.playerSessions.set(server, updatedSessons);
+
+            return;
         }
 
     } catch (err) {
