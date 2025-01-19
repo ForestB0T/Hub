@@ -12,7 +12,7 @@ export default {
     json: true,
     isPrivate: false,
     handler: (req: FastifyRequest, reply: FastifyReply, database: database) => {
-        const { server, order, limit } = req.query as { server: string, order: string, limit: string};
+        const { server, order, limit, usernames } = req.query as { server: string, order: string, limit: string, usernames: string };
         if (order !== "ASC" && order !== "DESC"){
             sendError(reply, "Invalid order.");
             return;
@@ -24,7 +24,13 @@ export default {
             return;
         }
 
-        database.Pool.query(`SELECT * FROM users WHERE mc_server = ? ORDER BY CAST(joindate AS UNSIGNED) ${order} LIMIT ?`, [server, queryLimit], (err, res) => {
+        const usernameArray = usernames.split(',').map(username => username.trim());
+        if (usernameArray.length === 0) {
+            sendError(reply, "No usernames provided.");
+            return;
+        }
+
+        database.Pool.query(`SELECT * FROM users WHERE mc_server = ? AND username IN (?) ORDER BY CAST(joindate AS UNSIGNED) ${order} LIMIT ?`, [server, usernameArray, queryLimit], (err, res) => {
             if (err || !res.length){
                 sendError(reply, "No users found.");
                 return;
