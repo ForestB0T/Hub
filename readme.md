@@ -18,6 +18,8 @@ ForestBot Hub is a centralized API and data processing service designed to manag
 - Player deaths  
 - Player joins and leaves  
 
+For more details on how WebSocket communication works within ForestBot, refer to the [WebSocket Documentation](./wsreadme.md).
+
 ### Dynamic Tablist Generation  
 - Compiles and serves real-time tablist data for connected servers.  
 
@@ -52,8 +54,6 @@ ForestBot Hub is a centralized API and data processing service designed to manag
 <br>
 <br>
 <br>
-
-
 
 ### Public Routes
 
