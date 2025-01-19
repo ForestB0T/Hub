@@ -57,6 +57,28 @@ ForestBot Hub is a centralized API and data processing service designed to manag
 
 ### Public Routes
 
+#### Endpoints List
+- **GET** /advancements?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>
+- **GET** /advancements-count?uuid=<uuid>&server=<server>
+- **GET** /all-servers
+- **GET** /all-user-stats?uuid=<uuid>
+- **GET** /convert-username-to-uuid?username=<username>
+- **GET** /deaths?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>&type=<type>
+- **GET** /faq?id=<id>&server=<server>
+- **GET** /player/playtime?uuid=<uuid>&date=<date>&server=<server>
+- **GET** /kills?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>
+- **GET** /messagecount?username=<username>&server=<server>
+- **GET** /messages?name=<username>&server=<server>&limit=<limit>&order=<order>
+- **GET** /namesearch?user=<search_term>&server=<server>
+- **GET** /online?user=<username>
+- **GET** /quote?name=<username>&server=<server>
+- **GET** /tab/:server
+- **GET** /top-statistic?statistic=<statistic>&server=<server>&limit=<limit>
+- **GET** /user?server=<server>&uuid=<uuid>
+- **GET** /users-sorted-by-joindate?server=<server>&order=<order>&limit=<limit>&usernames=<usernames>
+- **GET** /whois?username=<username>
+- **GET** /wordcount?word=<word>&server=<server>&username=<username>
+
 ## 1. Advancements  
 **GET** /advancements?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>  
 Retrieves a user's advancements on a specific server.  
@@ -72,7 +94,18 @@ Retrieves a user's advancements on a specific server.
 ```
 ---
 
-## 2. All Servers  
+## 2. Advancements Count  
+**GET** /advancements-count?uuid=<uuid>&server=<server>  
+Gets the total advancement count for a user on a specific server.  
+**Response Example:**  
+```
+{  
+    "total": 5  
+}
+```
+---
+
+## 3. All Servers  
 **GET** /all-servers  
 Gets a list of all available servers in the database.  
 **Response Example:**  
@@ -84,7 +117,7 @@ Gets a list of all available servers in the database.
 ```
 ---
 
-## 3. All User Stats  
+## 4. All User Stats  
 **GET** /all-user-stats?uuid=<uuid>  
 Gets a comprehensive list of stats for a specific user across all servers.  
 **Response Example:**  
@@ -108,7 +141,18 @@ Gets a comprehensive list of stats for a specific user across all servers.
 ```
 ---
 
-## 4. Deaths  
+## 5. Convert Username to UUID  
+**GET** /convert-username-to-uuid?username=<username>  
+Converts a username to a UUID using the ForestBot database.  
+**Response Example:**  
+```
+{  
+    "uuid": "player-uuid"  
+}
+```
+---
+
+## 6. Deaths  
 **GET** /deaths?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>&type=<type>  
 Retrieves all death records for a user, filtered by type (PvP/PvE).  
 **Response Example:**  
@@ -124,24 +168,7 @@ Retrieves all death records for a user, filtered by type (PvP/PvE).
 ```
 ---
 
-## 5. Kills  
-**GET** /kills?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>  
-Gets all kill records for a user.  
-**Response Example:**  
-```
-{  
-    "victim": "player456",  
-    "death_message": "Killed by player123",  
-    "time": 1616161616161,  
-    "type": "pvp",  
-    "mc_server": "server1",  
-    "victimUUID": "player-uuid"  
-}
-```
-
----
-
-## 6. FAQ  
+## 7. FAQ  
 **GET** /faq?id=<id>&server=<server>  
 Retrieves a random FAQ entry from the database.  
 **Response Example:**  
@@ -156,10 +183,37 @@ Retrieves a random FAQ entry from the database.
     "total": 5  
 }
 ```
-
 ---
 
-## 7. Message Count  
+## 8. Historical Playtime Graph  
+**GET** /player/playtime?uuid=<uuid>&date=<date>&server=<server>  
+Gets historical playtime data for a specific user on a specific server.  
+**Response Example:**  
+```
+{  
+    "day": "2021-12-01",  
+    "playtime": 120  
+}
+```
+---
+
+## 9. Kills  
+**GET** /kills?uuid=<uuid>&server=<server>&limit=<limit>&order=<order>  
+Gets all kill records for a user.  
+**Response Example:**  
+```
+{  
+    "victim": "player456",  
+    "death_message": "Killed by player123",  
+    "time": 1616161616161,  
+    "type": "pvp",  
+    "mc_server": "server1",  
+    "victimUUID": "player-uuid"  
+}
+```
+---
+
+## 10. Message Count  
 **GET** /messagecount?username=<username>&server=<server>  
 Gets the number of messages sent by a user on a specific server.  
 **Response Example:**  
@@ -168,10 +222,9 @@ Gets the number of messages sent by a user on a specific server.
     "count": 42  
 }
 ```
-
 ---
 
-## 8. Messages  
+## 11. Messages  
 **GET** /messages?name=<username>&server=<server>&limit=<limit>&order=<order>  
 Retrieves all messages sent by a user on a server.  
 **Response Example:**  
@@ -184,10 +237,9 @@ Retrieves all messages sent by a user on a server.
     "uuid": "player-uuid"  
 }
 ```
-
 ---
 
-## 9. Name Search  
+## 12. Name Search  
 **GET** /namesearch?user=<search_term>&server=<server>  
 Gets likely usernames related to your search term.  
 **Response Example:**  
@@ -198,10 +250,9 @@ Gets likely usernames related to your search term.
     "player789"  
 ]
 ```
-
 ---
 
-## 10. Online Status  
+## 13. Online Status  
 **GET** /online?user=<username>  
 Checks if a user is online and which server they are on.  
 **Response Example:**  
@@ -211,10 +262,9 @@ Checks if a user is online and which server they are on.
     "server": "server1"  
 }
 ```
-
 ---
 
-## 11. Random Quote  
+## 14. Random Quote  
 **GET** /quote?name=<username>&server=<server>  
 Gets a random quoted message from a user.  
 **Response Example:**  
@@ -224,10 +274,30 @@ Gets a random quoted message from a user.
     "date": "2021-12-01T12:00:00Z"  
 }
 ```
+---
+
+## 15. Tablist Image  
+**GET** /tab/:server  
+Gets a live tablist image for a specific server.  
+**Response Example:**  
+A live image representing the current tablist.
 
 ---
 
-## 12. User Stats on a Specific Server  
+## 16. Top Statistic  
+**GET** /top-statistic?statistic=<statistic>&server=<server>&limit=<limit>  
+Gets the top 5 users in a specific statistic on a server.  
+**Response Example:**  
+```
+[  
+    { "username": "player123", "statistic": 100 },  
+    { "username": "player456", "statistic": 90 },  
+    { "username": "player789", "statistic": 85 }  
+]
+```
+---
+
+## 17. User Stats on a Specific Server  
 **GET** /user?server=<server>&uuid=<uuid>  
 Gets stats for a specific user on a specific server.  
 **Response Example:**  
@@ -247,44 +317,9 @@ Gets stats for a specific user on a specific server.
     "mc_server": "server1"  
 }
 ```
-
 ---
 
-## 13. Tablist Image  
-**GET** /tab/:server  
-Gets a live tablist image for a specific server.  
-**Response Example:**  
-A live image representing the current tablist.
-
----
-
-## 14. Top Statistic  
-**GET** /top-statistic?statistic=<statistic>&server=<server>&limit=<limit>  
-Gets the top 5 users in a specific statistic on a server.  
-**Response Example:**  
-```
-[  
-    { "username": "player123", "statistic": 100 },  
-    { "username": "player456", "statistic": 90 },  
-    { "username": "player789", "statistic": 85 }  
-]
-```
-
----
-
-## 15. Convert Username to UUID  
-**GET** /convert-username-to-uuid?username=<username>  
-Converts a username to a UUID using the ForestBot database.  
-**Response Example:**  
-```
-{  
-    "uuid": "player-uuid"  
-}
-```
-
----
-
-## 16. User Whois  
+## 18. User Whois  
 **GET** /whois?username=<username>  
 Gets the description of a user.  
 **Response Example:**  
@@ -294,40 +329,14 @@ Gets the description of a user.
     "description": "A dedicated player who loves exploring."  
 }
 ```
-
 ---
 
-## 17. Word Count  
+## 19. Word Count  
 **GET** /wordcount?word=<word>&server=<server>&username=<username>  
 Gets the count of how many times a user has sent a specific word.  
 **Response Example:**  
 ```
 {  
     "count": 10  
-}
-```
-
----
-
-## 18. Historical Playtime Graph  
-**GET** /player/playtime?uuid=<uuid>&date=<date>&server=<server>  
-Gets historical playtime data for a specific user on a specific server.  
-**Response Example:**  
-```
-{  
-    "day": "2021-12-01",  
-    "playtime": 120  
-}
-```
-
----
-
-## 19. Advancements Count  
-**GET** /advancements-count?uuid=<uuid>&server=<server>  
-Gets the total advancement count for a user on a specific server.  
-**Response Example:**  
-```
-{  
-    "total": 5  
 }
 ```
