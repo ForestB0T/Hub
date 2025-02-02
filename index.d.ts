@@ -69,18 +69,17 @@ interface MinecraftPlayerLeaveMessage {
     server: string
 }
 
-
 interface MinecraftPlayerDeath {
-    victim?: string,
-    death_message: string,
-    murderer?: string,
-    time: number,
-    type: "pve"|"pvp",
-    mc_server: string,
-    victimUUID: string,
-    murdererUUID: string
+    victim: string;
+    death_message: string;
+    murderer?: string;
+    time: number;
+    type: "pve" | "pvp";
+    mc_server: string;
+    id?: number | null | undefined;
+    victimUUID: string;
+    murdererUUID?: string;
 }
-
 interface DiscordGuild {
     guild_id: string,
     channel_id: string,

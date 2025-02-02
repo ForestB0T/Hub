@@ -27,7 +27,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "",
-  "author": "Febzey <braydent1235@gmail.com>",
+  "author": "Febzey",
   "license": "MIT",
   "proxy": "ws://localhost:2555"
 }
