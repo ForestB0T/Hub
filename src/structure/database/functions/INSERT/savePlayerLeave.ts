@@ -11,12 +11,10 @@ export default async function InsertPlayerLeave(args: MinecraftPlayerLeaveMessag
 
         const sessions = api.playerSessions.get(server);
         if (!sessions) {
-            console.error("No sessions found for server: ", server);
             return;
         } else {
             const userSession = sessions.find(user => user.uuid === uuid);
             if (!userSession) {
-                console.error("No session found for user: ", username);
                 return;
             }
 
@@ -25,7 +23,9 @@ export default async function InsertPlayerLeave(args: MinecraftPlayerLeaveMessag
                 for (const user of allUserSessionsForServer) {
                     await InsertPlayerSession(user);
                 }
-                Logger.info(`Bot left the server ${server}, saving all user sessions to the database.`);
+
+                api.playerSessions.set(server, []); // Clear all user sessions for this server.
+                Logger.info(`Bot left the server ${server}, saving all user sessions to the database and cleared the sessions for this server.`);
             } else {
                 await InsertPlayerSession(userSession);
             }

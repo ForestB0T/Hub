@@ -6,7 +6,6 @@ import ForestBotApi from "../../../../index.js";
 
 export default async function InsertChatAdvancement(args: MinecraftAdvancementMessage) {
     const { username, advancement, mc_server, time, uuid } = args;
-    console.log(username, advancement, mc_server, time, uuid, " advancement shit")
     try { 
         await ForestBotApi.database.promisedQuery(
             "INSERT INTO advancements (username, advancement, time, mc_server, uuid) VALUES (?,?,?,?,?)",
