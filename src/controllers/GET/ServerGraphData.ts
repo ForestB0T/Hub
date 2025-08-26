@@ -14,7 +14,7 @@ const durations = {
 
 export default {
     method: "GET",
-    url: "/server/playtime",
+    url: "/server/playercounts",
     json: true,
     isPrivate: false,
     handler: async (req, reply: FastifyReply, database: database) => {
@@ -31,62 +31,56 @@ export default {
             return;
         }
 
-        const endDate = Number(date); // Current day in milliseconds (Unix timestamp).
-        const startDate = endDate - dura; // Start of the range.
+        const endDate = Number(date);       // Current day in ms (unix ms timestamp)
+        const startDate = endDate - dura;   // Range start
 
         try {
             const query = `
                 SELECT 
-                    join_time,
-                    leave_time,
-                    GREATEST(join_time, ?) AS adjusted_join_time,
-                    LEAST(leave_time, ?) AS adjusted_leave_time
+                    timestamp,
+                    count
                 FROM 
-                    sessions
+                    server_player_counts
                 WHERE 
                     mc_server = ?
-                    AND join_time <= ?
-                    AND leave_time >= ?;
+                    AND timestamp BETWEEN ? AND ?
+                ORDER BY timestamp ASC;
             `;
-            const sessions = await database.promisedQuery(query, [startDate, endDate, server, endDate, startDate]);
+            const rows = await database.promisedQuery(query, [server, startDate, endDate]);
 
-            // Initialize playtime per day
-            const playtimePerDay: { [key: string]: number } = {};
+            // Bucket counts per day
+            const countsPerDay: { [key: string]: { total: number, samples: number } } = {};
             const msPerDay = 24 * 60 * 60 * 1000;
 
-            // Fill days with zero playtime
-            for (let ts = startDate; ts <= endDate; ts += msPerDay) {
-                const day = new Date(ts).toISOString().split("T")[0];
-                playtimePerDay[day] = 0;
+            for (const row of rows) {
+                const day = new Date(Number(row.timestamp)).toISOString().split("T")[0];
+
+                if (!countsPerDay[day]) {
+                    countsPerDay[day] = { total: 0, samples: 0 };
+                }
+
+                countsPerDay[day].total += Number(row.count);
+                countsPerDay[day].samples += 1;
             }
 
-            // Aggregate playtime
-            for (const session of sessions) {
-                const joinTime = Number(session.adjusted_join_time);
-                const leaveTime = Number(session.adjusted_leave_time);
-
-                let currentDayStart = Math.floor(joinTime / msPerDay) * msPerDay;
-                while (currentDayStart < leaveTime) {
-                    const nextDayStart = currentDayStart + msPerDay;
-                    const day = new Date(currentDayStart).toISOString().split("T")[0];
-
-                    const playtime = Math.min(leaveTime, nextDayStart) - Math.max(joinTime, currentDayStart);
-                    playtimePerDay[day] += playtime;
-
-                    currentDayStart = nextDayStart;
+            // Fill empty days with zero
+            for (let ts = startDate; ts <= endDate; ts += msPerDay) {
+                const day = new Date(ts).toISOString().split("T")[0];
+                if (!countsPerDay[day]) {
+                    countsPerDay[day] = { total: 0, samples: 0 };
                 }
             }
 
-            // Format the data
-            const formattedData = Object.entries(playtimePerDay).map(([day, playtime]) => ({
+            // Format response (average player count per day)
+            const formattedData = Object.entries(countsPerDay).map(([day, { total, samples }]) => ({
                 day,
-                playtime: Math.round(playtime / 60000), // Convert milliseconds to minutes
+                avgPlayerCount: samples > 0 ? Math.round(total / samples) : 0
             }));
 
             return reply.code(200).send(formattedData);
         } catch (err) {
             console.error(err);
-            sendError(reply, "Database Error while fetching playtime.");
+            sendError(reply, "Database Error while fetching player counts.");
             return;
         }
     }
