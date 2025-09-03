@@ -625,10 +625,21 @@ foreground-child@^3.1.0:
     cross-spawn "^7.0.6"
     signal-exit "^4.0.1"
 
-forestbot-api-wrapper-v2@^1.4.7, forestbot-api-wrapper-v2@^1.4.8:
+forestbot-api-wrapper-v2@^1.4.7:
   version "1.5.5"
   resolved "https://registry.yarnpkg.com/forestbot-api-wrapper-v2/-/forestbot-api-wrapper-v2-1.5.5.tgz#c4ca993149944c5827fcab28caf0303b02630455"
   integrity sha512-0iC9c30ZyHDC5E4aKoBEH8xZ+opLMkLAEYtRIvCTxwUmmedtq/wcuJd6ds8CR/K8OwvtS4OtVSyo99OIlaahDg==
+  dependencies:
+    "@types/node" "^20.11.5"
+    "@types/ws" "^8.5.10"
+    axios "^1.6.5"
+    forestbot-api-wrapper-v2 "^1.4.7"
+    ws "^8.16.0"
+
+forestbot-api-wrapper-v2@^1.5.8:
+  version "1.5.8"
+  resolved "https://registry.yarnpkg.com/forestbot-api-wrapper-v2/-/forestbot-api-wrapper-v2-1.5.8.tgz#d3bdb92eaff95da2149e795427e791d580b6f64f"
+  integrity sha512-8r1eXyfP1+ZazcDpcJDhG4StaJaHfDDoHSGCPnh0Vmry84wVSjCugs3pCA2cMH4rECp78A+02Ol2axH/qOcf3Q==
   dependencies:
     "@types/node" "^20.11.5"
     "@types/ws" "^8.5.10"

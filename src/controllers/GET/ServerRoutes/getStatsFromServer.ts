@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { allStats, RouteItem } from "../../..";
-import type { database } from "../../structure/database/createPool";
-import sendError from "../../util/functions/replyTools/sendError.js";
+import { allStats, RouteItem } from "../../../..";
+import type { database } from "../../../structure/database/createPool";
+import sendError from "../../../util/functions/replyTools/sendError.js";
 
 /**
  * Route handler for getting all user statistics from a UUID and a minecraft server.

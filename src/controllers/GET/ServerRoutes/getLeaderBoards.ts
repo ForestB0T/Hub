@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { MinecraftChatMessage, RouteItem } from "../../..";
-import type { database } from "../../structure/database/createPool";
-import sendError from "../../util/functions/replyTools/sendError.js";
+import { MinecraftChatMessage, RouteItem } from "../../../..";
+import type { database } from "../../../structure/database/createPool";
+import sendError from "../../../util/functions/replyTools/sendError.js";
 
 const leaderBoardQueries = {
     // top 5 pvpers

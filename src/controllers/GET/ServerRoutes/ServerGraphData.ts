@@ -1,6 +1,6 @@
 import { FastifyReply } from "fastify";
-import { database } from "../../structure/database/createPool.js";
-import sendError from "../../util/functions/replyTools/sendError.js";
+import { database } from "../../../structure/database/createPool.js";
+import sendError from "../../../util/functions/replyTools/sendError.js";
 
 const durations = {
     "1_week": 7 * 24 * 60 * 60 * 1000,

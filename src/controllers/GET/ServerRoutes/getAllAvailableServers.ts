@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { database } from "../../structure/database/createPool.js";
-import sendError from "../../util/functions/replyTools/sendError.js";
+import { database } from "../../../structure/database/createPool.js";
+import sendError from "../../../util/functions/replyTools/sendError.js";
 
 
 export default {
