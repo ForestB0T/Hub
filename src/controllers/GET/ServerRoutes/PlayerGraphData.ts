@@ -24,7 +24,7 @@ export default {
             sendError(reply, "Invalid duration. Valid durations are: 1_week, 1_month, 2_months, 3_months, 4_months, 5_months, 6_months.");
             return;
         }
-        
+
         if (!uuid || !date) {
             sendError(reply, "Missing required parameters. Required parameters: uuid, date.");
             return;
@@ -50,24 +50,36 @@ export default {
             const playtimePerDay = {};
             const msPerDay = 24 * 60 * 60 * 1000;
 
+
+
+
             for (const session of sessions) {
-                const joinTime = Number(session.join_time); // Join time in milliseconds
-                const leaveTime = Number(session.leave_time); // Leave time in milliseconds
+                let start = Number(session.join_time);
+                let end = Number(session.leave_time);
 
-                // Calculate the playtime for the session by subtracting joinTime from leaveTime
-                const sessionPlaytime = leaveTime - joinTime;
+                // Cap session length
+                const maxSession = 12 * 60 * 60 * 1000;
+                if (end - start > maxSession) end = start + maxSession;
 
-                // Determine which day the session belongs to
-                const day = Math.floor(joinTime / msPerDay) * msPerDay;
+                while (start < end) {
+                    const dayStart = Math.floor(start / msPerDay) * msPerDay;
+                    const dayEnd = dayStart + msPerDay;
+                    const playtimeForThisDay = Math.min(end, dayEnd) - start;
 
-                // If no playtime recorded for this day yet, initialize it
-                if (!playtimePerDay[day]) {
-                    playtimePerDay[day] = 0;
+                    if (!playtimePerDay[dayStart]) playtimePerDay[dayStart] = 0;
+                    playtimePerDay[dayStart] += playtimeForThisDay;
+
+                    start = dayEnd; // move to next day
                 }
-
-                // Add session playtime to the total for that day
-                playtimePerDay[day] += sessionPlaytime;
             }
+
+            for (const day in playtimePerDay) {
+                if (playtimePerDay[day] > 18 * 60 * 60 * 1000) {
+                    playtimePerDay[day] = 18 * 60 * 60 * 1000;
+                }
+            }
+
+
 
             // Format the response as an array of { day, playtime }
             const formattedData = Object.entries(playtimePerDay).map(([day, playtime]) => ({
