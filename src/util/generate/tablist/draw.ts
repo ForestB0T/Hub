@@ -89,7 +89,7 @@ const draw = (names: PlayerList[]) => {
             ctx.fillRect(x, y, blockWidth, blockHeight);
 
             try {
-                const AvatarImg = avatar ?? await Canvas.loadImage(`https://mc-heads.net/avatar/${name}/24`);
+                const AvatarImg = avatar ?? await Canvas.loadImage(`https://mc-heads.net/avatar/${name??"steve"}/24`);
                 ctx.drawImage(AvatarImg, x + 5, y + 8, 24, 24); // Adjusted Y position for avatar
             } catch (error) {
                 console.error(error);
